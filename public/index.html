@@ -144,9 +144,24 @@
       </div>
       <div class="modal-body">
         <div class="form-group">
-          <label for="apiKeyInput">Clé API Google Gemini (Optionnelle)</label>
+          <label for="aiProviderSelect">Cerveau IA Conversationnel</label>
+          <select id="aiProviderSelect" class="form-select">
+            <option value="smart-local" selected>✨ Moteur Expert Richie Rich Event (Intégré & Gratuit)</option>
+            <option value="openai">OpenAI GPT-4o-mini (Intelligence illimitée & fluide)</option>
+            <option value="gemini">Google Gemini 2.5 Flash (Gratuit avec clé API)</option>
+          </select>
+        </div>
+
+        <div id="openaiAiConfig" class="form-group hidden">
+          <label for="openaiChatKey">Clé API OpenAI</label>
+          <input type="password" id="openaiChatKey" placeholder="sk-proj-..." autocomplete="off">
+          <small class="form-help">Permet à Aura de répondre à n'importe quelle question complexe avec un naturel absolu.</small>
+        </div>
+
+        <div id="geminiAiConfig" class="form-group hidden">
+          <label for="apiKeyInput">Clé API Google Gemini</label>
           <input type="password" id="apiKeyInput" placeholder="AIzaSy..." autocomplete="off">
-          <small class="form-help">Si aucune clé n'est renseignée, le moteur haute fidélité local d'Aura prend automatiquement le relais.</small>
+          <small class="form-help">Obtenez une clé gratuite sur <a href="https://aistudio.google.com" target="_blank" rel="noopener" style="color:var(--gold-primary);">aistudio.google.com</a>.</small>
         </div>
 
         <div class="form-group">
