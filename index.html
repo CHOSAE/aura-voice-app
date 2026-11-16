@@ -150,10 +150,39 @@
         </div>
 
         <div class="form-group">
-          <label for="voiceSelect">Voix de Synthèse Vocale</label>
-          <select id="voiceSelect" class="form-select">
-            <option value="auto">Détection automatique optimisée</option>
+          <label for="ttsProviderSelect">Moteur Vocal</label>
+          <select id="ttsProviderSelect" class="form-select">
+            <option value="browser">Voix Haute Définition du Navigateur (Gratuit & Local)</option>
+            <option value="elevenlabs">ElevenLabs — Voix Humaine Hyper-Réaliste (IA Studio)</option>
+            <option value="openai">OpenAI TTS — Voix Studio Naturelle (Nova / Shimmer)</option>
           </select>
+        </div>
+
+        <div id="elevenLabsConfig" class="form-group hidden">
+          <label for="elevenLabsApiKey">Clé API ElevenLabs</label>
+          <input type="password" id="elevenLabsApiKey" placeholder="sk_...">
+          <small class="form-help">Utilise la technologie vocale la plus humaine au monde. (Voix par défaut : Rachel / Luxe).</small>
+          <label for="elevenLabsVoiceId" style="margin-top:6px;">Voice ID ElevenLabs (Optionnel)</label>
+          <input type="text" id="elevenLabsVoiceId" placeholder="21m00Tcm4TlvDq8ikWAM (Rachel) ou ID personnalisé">
+        </div>
+
+        <div id="openaiConfig" class="form-group hidden">
+          <label for="openaiApiKey">Clé API OpenAI</label>
+          <input type="password" id="openaiApiKey" placeholder="sk-...">
+          <label for="openaiVoiceSelect" style="margin-top:6px;">Voix OpenAI</label>
+          <select id="openaiVoiceSelect" class="form-select">
+            <option value="nova">Nova (Chaleureuse, dynamique & féminine)</option>
+            <option value="shimmer">Shimmer (Douce, feutrée & élégante)</option>
+            <option value="alloy">Alloy (Équilibrée & claire)</option>
+          </select>
+        </div>
+
+        <div class="form-group" id="browserVoiceGroup">
+          <label for="voiceSelect">Sélection de la Voix Naturelle</label>
+          <select id="voiceSelect" class="form-select">
+            <option value="auto">Détection automatique de la meilleure voix Naturelle</option>
+          </select>
+          <small class="form-help">Privilégie automatiquement les voix « Natural », « Neural » ou « Google » pour un timbre chaleureux.</small>
         </div>
 
         <div class="form-group">

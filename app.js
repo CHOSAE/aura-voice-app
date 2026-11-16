@@ -1,9 +1,10 @@
 /**
  * Aura - Concierge Vocale Exclusif | Richie Rich Event
  * Voice Engine & Interactive Luxury Experience
+ * Module Vocal Ultra-Naturel & Multi-Moteurs (Navigateur HD / ElevenLabs / OpenAI)
  */
 
-// Moteur de connaissances et d'intelligence d'Aura (Local & Immédiat)
+// Moteur de connaissances et d'intelligence d'Aura
 const AURA_ENGINE = {
   systemPrompt: `Tu es Aura, le concierge virtuel et l'assistant exclusif de Richie Rich Event (richierichevent.com). 20 ans d'expertise dans la création d'événements sur mesure. Programme de fidélité Trust Points. Accès VIP en club partenaire. Ton élégant, direct, chaleureux et sélectif. Pas de Web3/crypto.`,
 
@@ -62,7 +63,7 @@ const AURA_ENGINE = {
       return "Grâce à Richie Rich Event, vous bénéficiez d'un accès coupe-file prioritaire et de tables réservées dans nos clubs partenaires les plus exclusifs. Indiquez-moi votre date et le nombre d'invités, et notre conciergerie se charge de tout.";
     }
     if (clean.includes('evenement') || clean.includes('événement') || clean.includes('soiree') || clean.includes('soirée') || clean.includes('anniversaire') || clean.includes('mariage') || clean.includes('sur mesure')) {
-      return "Depuis 20 ans, Richie Rich Event façonne des moments d'anthologie sur mesure, des décors monumentaux jusqu'aux artistes les plus renommés. Parlons de votre vision pour concevoir un événement qui marquera les esprits.";
+      return "Depuis vingt ans, Richie Rich Event façonne des moments d'anthologie sur mesure, des décors monumentaux jusqu'aux artistes les plus renommés. Parlons de votre vision pour concevoir un événement qui marquera les esprits.";
     }
     if (clean.includes('qui es-tu') || clean.includes('qui est aura') || clean.includes('qui etes-vous')) {
       return "Je suis Aura, la concierge virtuelle et l'assistante exclusive de Richie Rich Event. Depuis vingt ans, nous créons des événements de luxe sur mesure et vous ouvrons les portes des clubs les plus sélects. Quel privilège puis-je organiser pour vous ?";
@@ -133,12 +134,21 @@ class AuraVoiceApp {
     this.isProcessing = false;
     this.conversationHistory = [];
     
+    // Configurations persistées
     this.apiKey = localStorage.getItem('aura_gemini_api_key') || '';
-    this.speechRate = parseFloat(localStorage.getItem('aura_speech_rate') || '1.02');
+    this.speechRate = parseFloat(localStorage.getItem('aura_speech_rate') || '0.98');
     this.autoSpeak = localStorage.getItem('aura_auto_speak') !== 'false';
     this.selectedVoiceURI = localStorage.getItem('aura_selected_voice') || 'auto';
+    
+    // Moteur vocal sélectionné : 'browser', 'elevenlabs', 'openai'
+    this.ttsProvider = localStorage.getItem('aura_tts_provider') || 'browser';
+    this.elevenLabsKey = localStorage.getItem('aura_elevenlabs_key') || '';
+    this.elevenLabsVoiceId = localStorage.getItem('aura_elevenlabs_voice_id') || '21m00Tcm4TlvDq8ikWAM'; // Rachel
+    this.openaiKey = localStorage.getItem('aura_openai_key') || '';
+    this.openaiVoice = localStorage.getItem('aura_openai_voice') || 'nova';
 
     this.speechSynthesis = window.speechSynthesis;
+    this.currentAudioElement = null;
     this.recognition = null;
     this.availableVoices = [];
 
@@ -180,19 +190,42 @@ class AuraVoiceApp {
       voiceSelect: document.getElementById('voiceSelect'),
       speechRate: document.getElementById('speechRate'),
       rateVal: document.getElementById('rateVal'),
-      autoSpeakToggle: document.getElementById('autoSpeakToggle')
+      autoSpeakToggle: document.getElementById('autoSpeakToggle'),
+      // Paramètres audio avancés
+      ttsProviderSelect: document.getElementById('ttsProviderSelect'),
+      elevenLabsConfig: document.getElementById('elevenLabsConfig'),
+      elevenLabsApiKey: document.getElementById('elevenLabsApiKey'),
+      elevenLabsVoiceId: document.getElementById('elevenLabsVoiceId'),
+      openaiConfig: document.getElementById('openaiConfig'),
+      openaiApiKey: document.getElementById('openaiApiKey'),
+      openaiVoiceSelect: document.getElementById('openaiVoiceSelect'),
+      browserVoiceGroup: document.getElementById('browserVoiceGroup')
     };
 
     if (this.dom.apiKeyInput) this.dom.apiKeyInput.value = this.apiKey;
     if (this.dom.speechRate) this.dom.speechRate.value = this.speechRate;
     if (this.dom.rateVal) this.dom.rateVal.textContent = `${this.speechRate}x`;
     if (this.dom.autoSpeakToggle) this.dom.autoSpeakToggle.checked = this.autoSpeak;
+
+    if (this.dom.ttsProviderSelect) this.dom.ttsProviderSelect.value = this.ttsProvider;
+    if (this.dom.elevenLabsApiKey) this.dom.elevenLabsApiKey.value = this.elevenLabsKey;
+    if (this.dom.elevenLabsVoiceId) this.dom.elevenLabsVoiceId.value = this.elevenLabsVoiceId;
+    if (this.dom.openaiApiKey) this.dom.openaiApiKey.value = this.openaiKey;
+    if (this.dom.openaiVoiceSelect) this.dom.openaiVoiceSelect.value = this.openaiVoice;
+
+    this.updateProviderVisibility();
+  }
+
+  updateProviderVisibility() {
+    const provider = this.dom.ttsProviderSelect ? this.dom.ttsProviderSelect.value : 'browser';
+    if (this.dom.elevenLabsConfig) this.dom.elevenLabsConfig.classList.toggle('hidden', provider !== 'elevenlabs');
+    if (this.dom.openaiConfig) this.dom.openaiConfig.classList.toggle('hidden', provider !== 'openai');
+    if (this.dom.browserVoiceGroup) this.dom.browserVoiceGroup.classList.toggle('hidden', provider !== 'browser');
   }
 
   initSpeechRecognition() {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
-      console.warn("L'API Web Speech Recognition n'est pas supportée dans ce navigateur.");
       if (this.dom.voiceHint) this.dom.voiceHint.textContent = "Reconnaissance vocale non disponible sur ce navigateur (utilisez le clavier)";
       return;
     }
@@ -232,7 +265,7 @@ class AuraVoiceApp {
       };
 
       this.recognition.onerror = (event) => {
-        console.warn('Statut reconnaissance vocale:', event.error);
+        console.warn('Statut micro:', event.error);
         this.isListening = false;
         this.updateState('idle');
       };
@@ -256,11 +289,20 @@ class AuraVoiceApp {
         this.availableVoices = this.speechSynthesis.getVoices() || [];
         if (!this.dom.voiceSelect) return;
 
-        this.dom.voiceSelect.innerHTML = '<option value="auto">Détection automatique optimisée</option>';
-        this.availableVoices.forEach((voice) => {
+        this.dom.voiceSelect.innerHTML = '<option value="auto">✨ Sélection automatique de la voix la plus humaine & naturelle</option>';
+        
+        // Trier pour mettre en premier les voix de haute qualité
+        const sorted = [...this.availableVoices].sort((a, b) => {
+          const scoreA = (a.name.includes('Natural') || a.name.includes('Neural') || a.name.includes('Google')) ? 1 : 0;
+          const scoreB = (b.name.includes('Natural') || b.name.includes('Neural') || b.name.includes('Google')) ? 1 : 0;
+          return scoreB - scoreA;
+        });
+
+        sorted.forEach((voice) => {
           const option = document.createElement('option');
           option.value = voice.voiceURI;
-          option.textContent = `${voice.name} (${voice.lang})`;
+          const isHD = voice.name.includes('Natural') || voice.name.includes('Neural') || voice.name.includes('Google');
+          option.textContent = `${isHD ? '💎 ' : ''}${voice.name} (${voice.lang})`;
           if (voice.voiceURI === this.selectedVoiceURI) {
             option.selected = true;
           }
@@ -310,6 +352,10 @@ class AuraVoiceApp {
       this.dom.settingsModal.classList.add('hidden');
     });
 
+    if (this.dom.ttsProviderSelect) {
+      this.dom.ttsProviderSelect.addEventListener('change', () => this.updateProviderVisibility());
+    }
+
     this.dom.speechRate.addEventListener('input', (e) => {
       this.dom.rateVal.textContent = `${e.target.value}x`;
     });
@@ -320,10 +366,21 @@ class AuraVoiceApp {
       this.autoSpeak = this.dom.autoSpeakToggle.checked;
       this.selectedVoiceURI = this.dom.voiceSelect.value;
 
+      if (this.dom.ttsProviderSelect) this.ttsProvider = this.dom.ttsProviderSelect.value;
+      if (this.dom.elevenLabsApiKey) this.elevenLabsKey = this.dom.elevenLabsApiKey.value.trim();
+      if (this.dom.elevenLabsVoiceId) this.elevenLabsVoiceId = this.dom.elevenLabsVoiceId.value.trim() || '21m00Tcm4TlvDq8ikWAM';
+      if (this.dom.openaiApiKey) this.openaiKey = this.dom.openaiApiKey.value.trim();
+      if (this.dom.openaiVoiceSelect) this.openaiVoice = this.dom.openaiVoiceSelect.value;
+
       localStorage.setItem('aura_gemini_api_key', this.apiKey);
       localStorage.setItem('aura_speech_rate', this.speechRate.toString());
       localStorage.setItem('aura_auto_speak', this.autoSpeak.toString());
       localStorage.setItem('aura_selected_voice', this.selectedVoiceURI);
+      localStorage.setItem('aura_tts_provider', this.ttsProvider);
+      localStorage.setItem('aura_elevenlabs_key', this.elevenLabsKey);
+      localStorage.setItem('aura_elevenlabs_voice_id', this.elevenLabsVoiceId);
+      localStorage.setItem('aura_openai_key', this.openaiKey);
+      localStorage.setItem('aura_openai_voice', this.openaiVoice);
 
       this.dom.settingsModal.classList.add('hidden');
     });
@@ -383,7 +440,7 @@ class AuraVoiceApp {
       try {
         this.recognition.start();
       } catch (err) {
-        console.warn('Reconnaissance déjà active ou erreur:', err);
+        console.warn('Reconnaissance active:', err);
       }
     }
   }
@@ -400,7 +457,7 @@ class AuraVoiceApp {
 
     let reply = '';
 
-    // 1. Si une clé Gemini est renseignée côté client, tentative directe
+    // 1. Clé Gemini directe si présente
     if (this.apiKey) {
       try {
         const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${this.apiKey}`;
@@ -419,11 +476,11 @@ class AuraVoiceApp {
           reply = gData.candidates?.[0]?.content?.parts?.[0]?.text;
         }
       } catch (e) {
-        console.warn('Échec direct Gemini:', e);
+        console.warn('Fallback Gemini direct:', e);
       }
     }
 
-    // 2. Si pas encore de réponse, tentative via le serveur /api/chat
+    // 2. Appel serveur Vercel /api/chat
     if (!reply) {
       try {
         const response = await fetch('/api/chat', {
@@ -437,19 +494,18 @@ class AuraVoiceApp {
           })
         });
 
-        const contentType = response.headers.get('content-type') || '';
-        if (response.ok && contentType.includes('application/json')) {
+        if (response.ok) {
           const data = await response.json();
           if (data && data.reply) {
             reply = data.reply;
           }
         }
       } catch (err) {
-        console.warn('Le serveur /api/chat ne répond pas en JSON:', err);
+        console.warn('Fallback local:', err);
       }
     }
 
-    // 3. Moteur autonome haute fidélité (Garantie 100% de réponse)
+    // 3. Moteur autonome haute fidélité
     if (!reply) {
       reply = AURA_ENGINE.respond(message, this.currentLang);
     }
@@ -465,16 +521,97 @@ class AuraVoiceApp {
     }
   }
 
-  speak(text) {
-    if (!this.speechSynthesis) return;
+  // Nettoyage et formatage du texte pour une élocution humaine fluide
+  formatForNaturalSpeech(text) {
+    return text
+      .replace(/richierichevent\.com/gi, 'Richie Rich Event point com')
+      .replace(/20 ans/g, 'vingt ans')
+      .replace(/VIP/g, 'V.I.P.')
+      .replace(/[\*\_#]/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
 
+  async speak(text) {
     this.stopSpeaking();
     this.isSpeaking = true;
     this.updateState('speaking');
 
+    const spokenText = this.formatForNaturalSpeech(text);
+
+    // 1. ElevenLabs (Voix humaine ultra-réaliste)
+    if (this.ttsProvider === 'elevenlabs' && this.elevenLabsKey) {
+      try {
+        const voiceId = this.elevenLabsVoiceId || '21m00Tcm4TlvDq8ikWAM';
+        const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'xi-api-key': this.elevenLabsKey
+          },
+          body: JSON.stringify({
+            text: spokenText,
+            model_id: "eleven_multilingual_v2",
+            voice_settings: {
+              stability: 0.45,
+              similarity_boost: 0.85,
+              style: 0.2,
+              use_speaker_boost: true
+            }
+          })
+        });
+
+        if (res.ok) {
+          const blob = await res.blob();
+          const audioUrl = URL.createObjectURL(blob);
+          this.playAudioUrl(audioUrl);
+          return;
+        }
+      } catch (e) {
+        console.warn('Fallback ElevenLabs vers voix native:', e);
+      }
+    }
+
+    // 2. OpenAI TTS (Nova / Shimmer Studio)
+    if (this.ttsProvider === 'openai' && this.openaiKey) {
+      try {
+        const res = await fetch('https://api.openai.com/v1/audio/speech', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${this.openaiKey}`
+          },
+          body: JSON.stringify({
+            model: 'tts-1',
+            input: spokenText,
+            voice: this.openaiVoice || 'nova',
+            speed: this.speechRate
+          })
+        });
+
+        if (res.ok) {
+          const blob = await res.blob();
+          const audioUrl = URL.createObjectURL(blob);
+          this.playAudioUrl(audioUrl);
+          return;
+        }
+      } catch (e) {
+        console.warn('Fallback OpenAI vers voix native:', e);
+      }
+    }
+
+    // 3. Synthèse Vocale Haute Définition du Navigateur (Optimisée avec voix Neural / Natural)
+    if (!this.speechSynthesis) {
+      this.isSpeaking = false;
+      this.updateState('idle');
+      return;
+    }
+
     try {
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = this.speechRate;
+      const utterance = new SpeechSynthesisUtterance(spokenText);
+      
+      // Cadence détendue, chaleureuse et feutrée (conciergerie de luxe)
+      utterance.rate = Math.min(Math.max(this.speechRate, 0.92), 1.05);
       utterance.pitch = 1.0;
 
       let selectedVoice = null;
@@ -484,7 +621,28 @@ class AuraVoiceApp {
 
       if (!selectedVoice) {
         const langPrefix = this.currentLang === 'hi' ? 'hi' : (this.currentLang === 'en' ? 'en' : 'fr');
-        selectedVoice = this.availableVoices.find(v => v.lang && v.lang.startsWith(langPrefix) && (v.name.includes('Natural') || v.name.includes('Google') || v.name.includes('Online')));
+        
+        // Ordre d'élégance : Voix Naturelles Microsoft Online / Google HD / Voix système de qualité
+        selectedVoice = this.availableVoices.find(v => 
+          v.lang && v.lang.startsWith(langPrefix) && 
+          (v.name.includes('Natural') || v.name.includes('Neural'))
+        );
+
+        if (!selectedVoice) {
+          selectedVoice = this.availableVoices.find(v => 
+            v.lang && v.lang.startsWith(langPrefix) && 
+            (v.name.includes('Google') || v.name.includes('Online') || v.name.includes('Premium'))
+          );
+        }
+
+        if (!selectedVoice) {
+          // Voix féminines préférées par défaut
+          selectedVoice = this.availableVoices.find(v => 
+            v.lang && v.lang.startsWith(langPrefix) && 
+            (v.name.includes('Denise') || v.name.includes('Eloise') || v.name.includes('Jenny') || v.name.includes('Aria') || v.name.includes('Swara') || v.name.includes('Amelie') || v.name.includes('Hortense'))
+          );
+        }
+
         if (!selectedVoice) {
           selectedVoice = this.availableVoices.find(v => v.lang && v.lang.startsWith(langPrefix));
         }
@@ -500,26 +658,49 @@ class AuraVoiceApp {
       };
 
       utterance.onerror = (e) => {
-        console.warn('Statut synthèse vocale:', e);
+        console.warn('Statut vocal:', e);
         this.isSpeaking = false;
         this.updateState('idle');
       };
 
       this.speechSynthesis.speak(utterance);
+
     } catch (e) {
-      console.warn('Erreur synthèse:', e);
+      console.warn('Erreur speech:', e);
       this.isSpeaking = false;
       this.updateState('idle');
     }
   }
 
-  stopSpeaking() {
-    if (this.speechSynthesis) {
-      try {
-        this.speechSynthesis.cancel();
-      } catch(e){}
-      this.isSpeaking = false;
+  playAudioUrl(url) {
+    if (this.currentAudioElement) {
+      this.currentAudioElement.pause();
     }
+    this.currentAudioElement = new Audio(url);
+    this.currentAudioElement.onended = () => {
+      this.isSpeaking = false;
+      this.updateState('idle');
+    };
+    this.currentAudioElement.onerror = () => {
+      this.isSpeaking = false;
+      this.updateState('idle');
+    };
+    this.currentAudioElement.play().catch(e => {
+      console.warn('Audio play bloqué par le navigateur:', e);
+      this.isSpeaking = false;
+      this.updateState('idle');
+    });
+  }
+
+  stopSpeaking() {
+    if (this.currentAudioElement) {
+      try { this.currentAudioElement.pause(); } catch(e){}
+      this.currentAudioElement = null;
+    }
+    if (this.speechSynthesis) {
+      try { this.speechSynthesis.cancel(); } catch(e){}
+    }
+    this.isSpeaking = false;
   }
 
   updateState(state) {
