@@ -74,25 +74,54 @@ function getLocalAuraResponse(message, lang) {
   return "Bienvenue. Je suis Aura, votre concierge exclusive chez Richie Rich Event. Depuis vingt ans, nous concevons des événements d'exception et ouvrons les portes des nuits les plus sélectes. Quel privilège puis-je organiser pour vous aujourd'hui ?";
 }
 
+async function extractBody(req) {
+  if (req.body !== undefined && req.body !== null) {
+    if (typeof req.body === 'string') {
+      try { return JSON.parse(req.body); } catch(e) { return {}; }
+    }
+    if (typeof req.body === 'object') {
+      return req.body;
+    }
+  }
+  return new Promise((resolve) => {
+    let raw = '';
+    req.on('data', chunk => { raw += chunk; });
+    req.on('end', () => {
+      try { resolve(JSON.parse(raw || '{}')); } catch(e) { resolve({}); }
+    });
+    req.on('error', () => resolve({}));
+  });
+}
+
+function sendResponse(res, status, data) {
+  if (typeof res.status === 'function' && typeof res.json === 'function') {
+    return res.status(status).json(data);
+  }
+  res.writeHead(status, { 'Content-Type': 'application/json' });
+  res.end(JSON.stringify(data));
+}
+
 module.exports = async (req, res) => {
-  // CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
   if (req.method === 'OPTIONS') {
-    return res.status(204).end();
+    if (typeof res.status === 'function') return res.status(204).end();
+    res.writeHead(204);
+    return res.end();
   }
 
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Méthode non autorisée' });
+    return sendResponse(res, 405, { error: 'Méthode non autorisée' });
   }
 
   try {
-    const { message, history = [], language = 'fr', apiKey } = req.body || {};
+    const payload = await extractBody(req);
+    const { message, history = [], language = 'fr', apiKey } = payload || {};
 
     if (!message || typeof message !== 'string') {
-      return res.status(400).json({ error: 'Message requis' });
+      return sendResponse(res, 400, { error: 'Message requis' });
     }
 
     const effectiveApiKey = apiKey || process.env.GEMINI_API_KEY;
@@ -140,7 +169,7 @@ module.exports = async (req, res) => {
           const data = await response.json();
           const reply = data.candidates?.[0]?.content?.parts?.[0]?.text;
           if (reply) {
-            return res.status(200).json({ reply: reply.trim(), source: 'gemini' });
+            return sendResponse(res, 200, { reply: reply.trim(), source: 'gemini' });
           }
         }
       } catch (err) {
@@ -149,13 +178,13 @@ module.exports = async (req, res) => {
     }
 
     const reply = getLocalAuraResponse(message, language);
-    return res.status(200).json({ reply, source: 'aura-local-engine' });
+    return sendResponse(res, 200, { reply, source: 'aura-local-engine' });
 
   } catch (error) {
     console.error('Erreur function chat:', error);
-    return res.status(500).json({
-      reply: "Je vous prie de m'excuser, un contretemps est survenu. Comment puis-je vous accompagner pour votre soirée ?",
-      source: 'error-fallback'
+    return sendResponse(res, 200, {
+      reply: "Je suis à vos côtés pour organiser votre soirée d'exception. Que puis-je vous proposer aujourd'hui ?",
+      source: 'graceful-fallback'
     });
   }
 };
