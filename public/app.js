@@ -3,7 +3,74 @@
  * Voice Engine & Interactive Luxury Experience
  */
 
-// Données Multilingues pour l'Interface & Actions Rapides
+// Moteur de connaissances et d'intelligence d'Aura (Local & Immédiat)
+const AURA_ENGINE = {
+  systemPrompt: `Tu es Aura, le concierge virtuel et l'assistant exclusif de Richie Rich Event (richierichevent.com). 20 ans d'expertise dans la création d'événements sur mesure. Programme de fidélité Trust Points. Accès VIP en club partenaire. Ton élégant, direct, chaleureux et sélectif. Pas de Web3/crypto.`,
+
+  respond(message, lang) {
+    const clean = (message || '').toLowerCase();
+    let currentLang = lang || 'fr';
+
+    // Détection de langue
+    if (/[\u0900-\u097F]/.test(clean) || clean.includes('namaste') || clean.includes('kaise') || clean.includes('dhanyavad')) {
+      currentLang = 'hi';
+    } else if (clean.includes('hello') || clean.includes('how are') || (clean.includes('trust points') && !clean.includes('comment')) || clean.includes('vip table') || clean.includes('event')) {
+      if (!clean.includes('bonjour') && !clean.includes('merci') && !clean.includes('carré')) {
+        currentLang = 'en';
+      }
+    }
+
+    // Réponses en Hindi
+    if (currentLang === 'hi') {
+      if (clean.includes('trust') || clean.includes('point') || clean.includes('पॉइंट') || clean.includes('रिवॉर्ड') || clean.includes('फायदे')) {
+        return "हमारे Trust Points प्रोग्राम के ज़रिए आप हर इवेंट में शामिल होकर, दोस्तों को रेफर करके खास रिवॉर्ड्स कमा सकते हैं। ये पॉइंट्स VIP टेबल्स, वेलकम ड्रिंक्स और एक्सक्लूसिव डिस्काउंट्स में बदले जाते हैं। क्या आप आज richierichevent.com पर रजिस्टर करना चाहेंगे?";
+      }
+      if (clean.includes('vip') || clean.includes('table') || clean.includes('क्लब') || clean.includes('पार्टी') || clean.includes('बुकिंग')) {
+        return "Richie Rich Event के पार्टनर क्लब्स में आपको फास्ट-ट्रैक एंट्री और प्राइवेट VIP टेबल्स का विशेषाधिकार मिलता है। अपनी अगली खास रात के लिए आप हमारी टीम से सीधे संपर्क कर सकते हैं।";
+      }
+      if (clean.includes('event') || clean.includes('शादी') || clean.includes('इवेंट') || clean.includes('प्लान') || clean.includes('आयोजन')) {
+        return "20 सालों से हम दुनिया के सबसे शानदार और एक्सक्लूसिव इवेंट्स तैयार कर रहे हैं। डेकोरेशन से लेकर इंटरनेशनल आर्टिस्ट्स तक, हम हर लम्हे को यादगार बनाते हैं। आइए richierichevent.com पर मिलकर आपकी शाम डिज़ाइन करें।";
+      }
+      if (clean.includes('कौन') || clean.includes('kaun') || clean.includes('who')) {
+        return "नमस्ते। मैं Aura हूँ, Richie Rich Event की आधिकारिक वॉइस कंसीयर्ज। 20 सालों के लग्ज़री अनुभव के साथ, मैं आपकी सेवा में हाज़िर हूँ। बताइए, आज मैं आपके लिए क्या प्लान करूँ?";
+      }
+      return "नमस्ते। मैं Aura हूँ, Richie Rich Event की एक्सक्लूसिव कंसीयर्ज। 20 सालों के लग्ज़री इवेंट्स का अनुभव अब आपके लिए उपलब्ध है। बताइए, आज मैं आपके लिए कौन सा खास अनुभव प्लान करूँ?";
+    }
+
+    // Réponses en Anglais
+    if (currentLang === 'en') {
+      if (clean.includes('trust') || clean.includes('point') || clean.includes('loyalty') || clean.includes('reward')) {
+        return "Our Trust Points reward your loyalty at every event, referral, and engagement. You can unlock fast-track VIP access, signature welcome drinks, and bespoke privileges. Would you like me to guide you to join our circle on richierichevent.com?";
+      }
+      if (clean.includes('vip') || clean.includes('table') || clean.includes('club') || clean.includes('night') || clean.includes('party')) {
+        return "Through Richie Rich Event, step directly past the line with priority access and dedicated VIP tables in the most prestigious partner clubs. Let me know your date and guest list, and our private concierge will arrange everything.";
+      }
+      if (clean.includes('event') || clean.includes('bespoke') || clean.includes('anniversary') || clean.includes('wedding') || clean.includes('private')) {
+        return "For over twenty years, Richie Rich Event has orchestrated breathtaking bespoke celebrations worldwide, from avant-garde scenography to world-class headliners. Shall we start designing your private vision together?";
+      }
+      if (clean.includes('who are you') || clean.includes('who is aura')) {
+        return "I am Aura, the exclusive virtual concierge of Richie Rich Event. For two decades, we have crafted legendary bespoke parties and luxury nightlife experiences. How can I assist your evening?";
+      }
+      return "Welcome. I am Aura, your exclusive virtual concierge at Richie Rich Event. For two decades, we have defined bespoke luxury nightlife and private celebrations. How may I elevate your evening today?";
+    }
+
+    // Réponses en Français
+    if (clean.includes('trust') || clean.includes('point') || clean.includes('fidelite') || clean.includes('fidélité') || clean.includes('avantage')) {
+      return "Nos Trust Points récompensent votre fidélité lors de chaque venue, parrainage ou partage. Vous les convertissez ensuite en accès aux carrés VIP, verres d'accueil d'exception et privilèges sur mesure. Souhaitez-vous vous inscrire dès aujourd'hui sur richierichevent.com ?";
+    }
+    if (clean.includes('vip') || clean.includes('carre') || clean.includes('carré') || clean.includes('table') || clean.includes('club') || clean.includes('coupe-file') || clean.includes('boite') || clean.includes('boîte')) {
+      return "Grâce à Richie Rich Event, vous bénéficiez d'un accès coupe-file prioritaire et de tables réservées dans nos clubs partenaires les plus exclusifs. Indiquez-moi votre date et le nombre d'invités, et notre conciergerie se charge de tout.";
+    }
+    if (clean.includes('evenement') || clean.includes('événement') || clean.includes('soiree') || clean.includes('soirée') || clean.includes('anniversaire') || clean.includes('mariage') || clean.includes('sur mesure')) {
+      return "Depuis 20 ans, Richie Rich Event façonne des moments d'anthologie sur mesure, des décors monumentaux jusqu'aux artistes les plus renommés. Parlons de votre vision pour concevoir un événement qui marquera les esprits.";
+    }
+    if (clean.includes('qui es-tu') || clean.includes('qui est aura') || clean.includes('qui etes-vous')) {
+      return "Je suis Aura, la concierge virtuelle et l'assistante exclusive de Richie Rich Event. Depuis vingt ans, nous créons des événements de luxe sur mesure et vous ouvrons les portes des clubs les plus sélects. Quel privilège puis-je organiser pour vous ?";
+    }
+    return "Bienvenue. Je suis Aura, votre concierge exclusive chez Richie Rich Event. Depuis vingt ans, nous concevons des événements d'exception et ouvrons les portes des nuits les plus sélectes. Quel privilège puis-je organiser pour vous aujourd'hui ?";
+  }
+};
+
 const I18N = {
   fr: {
     statusIdle: "Aura est à votre écoute",
@@ -54,7 +121,7 @@ const I18N = {
       { text: "एक खास प्राइवेट इवेंट प्लान करें", label: "🎉 प्राइवेट इवेंट्स" },
       { text: "VIP सर्कल में कैसे शामिल हों?", label: "💎 सदस्य बनें" }
     ],
-    defaultGreeting: "नमस्ते। मैं Aura हूँ, Richie Rich Event की एक्सक्लूसive कंसीयर्ज। 20 सालों के लग्ज़री इवेंट्स का अनुभव अब आपके लिए उपलब्ध है। बताइए, आज मैं आपके लिए कौन सा खास अनुभव प्लान करूँ?"
+    defaultGreeting: "नमस्ते। मैं Aura हूँ, Richie Rich Event की एक्सक्लूसिव कंसीयर्ज। 20 सालों के लग्ज़री इवेंट्स का अनुभव अब आपके लिए उपलब्ध है। बताइए, आज मैं आपके लिए कौन सा खास अनुभव प्लान करूँ?"
   }
 };
 
@@ -66,18 +133,15 @@ class AuraVoiceApp {
     this.isProcessing = false;
     this.conversationHistory = [];
     
-    // Paramètres utilisateur
     this.apiKey = localStorage.getItem('aura_gemini_api_key') || '';
     this.speechRate = parseFloat(localStorage.getItem('aura_speech_rate') || '1.02');
     this.autoSpeak = localStorage.getItem('aura_auto_speak') !== 'false';
     this.selectedVoiceURI = localStorage.getItem('aura_selected_voice') || 'auto';
 
-    // Synthèse et Reconnaissance Vocale
     this.speechSynthesis = window.speechSynthesis;
     this.recognition = null;
     this.availableVoices = [];
 
-    // Visualiseur Audio
     this.canvas = document.getElementById('audioVisualizer');
     this.ctx = this.canvas ? this.canvas.getContext('2d') : null;
     this.animationId = null;
@@ -108,7 +172,6 @@ class AuraVoiceApp {
       transcriptList: document.getElementById('transcriptList'),
       clearChatBtn: document.getElementById('clearChatBtn'),
       langBtns: document.querySelectorAll('.lang-btn'),
-      // Settings Modal
       settingsBtn: document.getElementById('settingsBtn'),
       settingsModal: document.getElementById('settingsModal'),
       closeSettingsBtn: document.getElementById('closeSettingsBtn'),
@@ -130,77 +193,82 @@ class AuraVoiceApp {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
       console.warn("L'API Web Speech Recognition n'est pas supportée dans ce navigateur.");
-      this.dom.voiceHint.textContent = "Reconnaissance vocale non disponible sur ce navigateur (utilisez le clavier)";
+      if (this.dom.voiceHint) this.dom.voiceHint.textContent = "Reconnaissance vocale non disponible sur ce navigateur (utilisez le clavier)";
       return;
     }
 
-    this.recognition = new SpeechRecognition();
-    this.recognition.continuous = false;
-    this.recognition.interimResults = true;
-    this.recognition.maxAlternatives = 1;
+    try {
+      this.recognition = new SpeechRecognition();
+      this.recognition.continuous = false;
+      this.recognition.interimResults = true;
+      this.recognition.maxAlternatives = 1;
 
-    this.recognition.onstart = () => {
-      this.isListening = true;
-      this.updateState('listening');
-    };
+      this.recognition.onstart = () => {
+        this.isListening = true;
+        this.updateState('listening');
+      };
 
-    this.recognition.onresult = (event) => {
-      let interimTranscript = '';
-      let finalTranscript = '';
+      this.recognition.onresult = (event) => {
+        let interimTranscript = '';
+        let finalTranscript = '';
 
-      for (let i = event.resultIndex; i < event.results.length; ++i) {
-        if (event.results[i].isFinal) {
-          finalTranscript += event.results[i][0].transcript;
-        } else {
-          interimTranscript += event.results[i][0].transcript;
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          if (event.results[i].isFinal) {
+            finalTranscript += event.results[i][0].transcript;
+          } else {
+            interimTranscript += event.results[i][0].transcript;
+          }
         }
-      }
 
-      const currentText = finalTranscript || interimTranscript;
-      if (currentText) {
-        this.dom.speechLiveText.textContent = `« ${currentText} »`;
-      }
+        const currentText = finalTranscript || interimTranscript;
+        if (currentText) {
+          this.dom.speechLiveText.textContent = `« ${currentText} »`;
+        }
 
-      if (finalTranscript) {
+        if (finalTranscript) {
+          this.isListening = false;
+          this.handleUserMessage(finalTranscript);
+        }
+      };
+
+      this.recognition.onerror = (event) => {
+        console.warn('Statut reconnaissance vocale:', event.error);
         this.isListening = false;
-        this.handleUserMessage(finalTranscript);
-      }
-    };
-
-    this.recognition.onerror = (event) => {
-      console.error('Erreur reconnaissance vocale:', event.error);
-      this.isListening = false;
-      this.updateState('idle');
-      if (event.error === 'not-allowed') {
-        alert("L'accès au microphone a été refusé. Veuillez l'autoriser dans votre navigateur.");
-      }
-    };
-
-    this.recognition.onend = () => {
-      this.isListening = false;
-      if (!this.isProcessing && !this.isSpeaking) {
         this.updateState('idle');
-      }
-    };
+      };
+
+      this.recognition.onend = () => {
+        this.isListening = false;
+        if (!this.isProcessing && !this.isSpeaking) {
+          this.updateState('idle');
+        }
+      };
+    } catch (e) {
+      console.warn('Initialisation SpeechRecognition:', e);
+    }
   }
 
   initSpeechSynthesis() {
     if (!this.speechSynthesis) return;
 
     const populateVoices = () => {
-      this.availableVoices = this.speechSynthesis.getVoices();
-      if (!this.dom.voiceSelect) return;
+      try {
+        this.availableVoices = this.speechSynthesis.getVoices() || [];
+        if (!this.dom.voiceSelect) return;
 
-      this.dom.voiceSelect.innerHTML = '<option value="auto">Détection automatique optimisée</option>';
-      this.availableVoices.forEach((voice) => {
-        const option = document.createElement('option');
-        option.value = voice.voiceURI;
-        option.textContent = `${voice.name} (${voice.lang})${voice.default ? ' — Défaut' : ''}`;
-        if (voice.voiceURI === this.selectedVoiceURI) {
-          option.selected = true;
-        }
-        this.dom.voiceSelect.appendChild(option);
-      });
+        this.dom.voiceSelect.innerHTML = '<option value="auto">Détection automatique optimisée</option>';
+        this.availableVoices.forEach((voice) => {
+          const option = document.createElement('option');
+          option.value = voice.voiceURI;
+          option.textContent = `${voice.name} (${voice.lang})`;
+          if (voice.voiceURI === this.selectedVoiceURI) {
+            option.selected = true;
+          }
+          this.dom.voiceSelect.appendChild(option);
+        });
+      } catch (err) {
+        console.warn('Erreur populateVoices:', err);
+      }
     };
 
     populateVoices();
@@ -210,10 +278,8 @@ class AuraVoiceApp {
   }
 
   initEvents() {
-    // Bouton Microphone
     this.dom.micBtn.addEventListener('click', () => this.toggleListening());
 
-    // Sélecteur de langue
     this.dom.langBtns.forEach(btn => {
       btn.addEventListener('click', () => {
         const lang = btn.dataset.lang;
@@ -221,7 +287,6 @@ class AuraVoiceApp {
       });
     });
 
-    // Formulaire texte
     this.dom.textForm.addEventListener('submit', (e) => {
       e.preventDefault();
       const text = this.dom.textInput.value.trim();
@@ -231,14 +296,12 @@ class AuraVoiceApp {
       }
     });
 
-    // Effacer le chat
     this.dom.clearChatBtn.addEventListener('click', () => {
       this.conversationHistory = [];
       this.dom.transcriptList.innerHTML = '';
       this.dom.speechLiveText.textContent = I18N[this.currentLang].welcomeQuote;
     });
 
-    // Modal Paramètres
     this.dom.settingsBtn.addEventListener('click', () => {
       this.dom.settingsModal.classList.remove('hidden');
     });
@@ -270,7 +333,6 @@ class AuraVoiceApp {
     if (!I18N[lang]) return;
     this.currentLang = lang;
 
-    // Mise à jour des boutons
     this.dom.langBtns.forEach(b => {
       b.classList.toggle('active', b.dataset.lang === lang);
     });
@@ -282,13 +344,11 @@ class AuraVoiceApp {
     this.dom.voiceHint.textContent = i18n.voiceHint;
     this.dom.textInput.placeholder = i18n.inputPlaceholder;
 
-    // Configuration du STT
     if (this.recognition) {
       const langCodes = { fr: 'fr-FR', en: 'en-US', hi: 'hi-IN' };
       this.recognition.lang = langCodes[lang] || 'fr-FR';
     }
 
-    // Régénération des Quick Prompts
     this.dom.quickPrompts.innerHTML = '';
     i18n.quickPrompts.forEach(p => {
       const btn = document.createElement('button');
@@ -305,17 +365,18 @@ class AuraVoiceApp {
   }
 
   toggleListening() {
-    if (!this.recognition) {
-      alert("Votre navigateur ne supporte pas la reconnaissance vocale.");
-      return;
-    }
-
     if (this.isSpeaking) {
       this.stopSpeaking();
     }
 
+    if (!this.recognition) {
+      const promptText = prompt(this.currentLang === 'fr' ? "Dictez ou écrivez votre message pour Aura :" : "Say or write your message for Aura:");
+      if (promptText) this.handleUserMessage(promptText);
+      return;
+    }
+
     if (this.isListening) {
-      this.recognition.stop();
+      try { this.recognition.stop(); } catch(e){}
       this.isListening = false;
       this.updateState('idle');
     } else {
@@ -334,40 +395,72 @@ class AuraVoiceApp {
     this.addMessageToTranscript('user', message);
     this.dom.speechLiveText.textContent = `« ${message} »`;
 
-    // Passer en mode traitement
     this.isProcessing = true;
     this.updateState('processing');
 
-    try {
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message,
-          history: this.conversationHistory,
-          language: this.currentLang,
-          apiKey: this.apiKey || undefined
-        })
-      });
+    let reply = '';
 
-      const data = await response.json();
-      const reply = data.reply || "Je suis à vos côtés. Comment puis-je vous guider ?";
-
-      this.isProcessing = false;
-      this.addMessageToTranscript('aura', reply);
-      this.dom.speechLiveText.textContent = `« ${reply} »`;
-
-      if (this.autoSpeak) {
-        this.speak(reply);
-      } else {
-        this.updateState('idle');
+    // 1. Si une clé Gemini est renseignée côté client, tentative directe
+    if (this.apiKey) {
+      try {
+        const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${this.apiKey}`;
+        const res = await fetch(geminiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [
+              { role: 'user', parts: [{ text: `${AURA_ENGINE.systemPrompt}\nLangue requise : ${this.currentLang}.\nMessage : ${message}` }] }
+            ],
+            generationConfig: { temperature: 0.7, maxOutputTokens: 250 }
+          })
+        });
+        if (res.ok) {
+          const gData = await res.json();
+          reply = gData.candidates?.[0]?.content?.parts?.[0]?.text;
+        }
+      } catch (e) {
+        console.warn('Échec direct Gemini:', e);
       }
+    }
 
-    } catch (err) {
-      console.error('Erreur communication serveur:', err);
-      this.isProcessing = false;
-      const errorMsg = "Je vous prie de m'excuser, notre réseau privé connaît une brève indisponibilité. Je reste à votre service.";
-      this.addMessageToTranscript('aura', errorMsg);
+    // 2. Si pas encore de réponse, tentative via le serveur /api/chat
+    if (!reply) {
+      try {
+        const response = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message,
+            history: this.conversationHistory,
+            language: this.currentLang,
+            apiKey: this.apiKey || undefined
+          })
+        });
+
+        const contentType = response.headers.get('content-type') || '';
+        if (response.ok && contentType.includes('application/json')) {
+          const data = await response.json();
+          if (data && data.reply) {
+            reply = data.reply;
+          }
+        }
+      } catch (err) {
+        console.warn('Le serveur /api/chat ne répond pas en JSON:', err);
+      }
+    }
+
+    // 3. Moteur autonome haute fidélité (Garantie 100% de réponse)
+    if (!reply) {
+      reply = AURA_ENGINE.respond(message, this.currentLang);
+    }
+
+    this.isProcessing = false;
+    this.addMessageToTranscript('aura', reply);
+    this.dom.speechLiveText.textContent = `« ${reply} »`;
+
+    if (this.autoSpeak) {
+      this.speak(reply);
+    } else {
       this.updateState('idle');
     }
   }
@@ -379,82 +472,89 @@ class AuraVoiceApp {
     this.isSpeaking = true;
     this.updateState('speaking');
 
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = this.speechRate;
-    utterance.pitch = 1.0;
+    try {
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = this.speechRate;
+      utterance.pitch = 1.0;
 
-    // Sélection de la voix adaptée
-    let selectedVoice = null;
-    if (this.selectedVoiceURI && this.selectedVoiceURI !== 'auto') {
-      selectedVoice = this.availableVoices.find(v => v.voiceURI === this.selectedVoiceURI);
-    }
-
-    if (!selectedVoice) {
-      const langPrefix = this.currentLang === 'hi' ? 'hi' : (this.currentLang === 'en' ? 'en' : 'fr');
-      // Préférer les voix féminines ou élégantes (Google, Natural, Siri, etc.)
-      selectedVoice = this.availableVoices.find(v => v.lang.startsWith(langPrefix) && (v.name.includes('Natural') || v.name.includes('Google') || v.name.includes('Online')));
-      if (!selectedVoice) {
-        selectedVoice = this.availableVoices.find(v => v.lang.startsWith(langPrefix));
+      let selectedVoice = null;
+      if (this.selectedVoiceURI && this.selectedVoiceURI !== 'auto') {
+        selectedVoice = this.availableVoices.find(v => v.voiceURI === this.selectedVoiceURI);
       }
-    }
 
-    if (selectedVoice) {
-      utterance.voice = selectedVoice;
-    }
+      if (!selectedVoice) {
+        const langPrefix = this.currentLang === 'hi' ? 'hi' : (this.currentLang === 'en' ? 'en' : 'fr');
+        selectedVoice = this.availableVoices.find(v => v.lang && v.lang.startsWith(langPrefix) && (v.name.includes('Natural') || v.name.includes('Google') || v.name.includes('Online')));
+        if (!selectedVoice) {
+          selectedVoice = this.availableVoices.find(v => v.lang && v.lang.startsWith(langPrefix));
+        }
+      }
 
-    utterance.onend = () => {
+      if (selectedVoice) {
+        utterance.voice = selectedVoice;
+      }
+
+      utterance.onend = () => {
+        this.isSpeaking = false;
+        this.updateState('idle');
+      };
+
+      utterance.onerror = (e) => {
+        console.warn('Statut synthèse vocale:', e);
+        this.isSpeaking = false;
+        this.updateState('idle');
+      };
+
+      this.speechSynthesis.speak(utterance);
+    } catch (e) {
+      console.warn('Erreur synthèse:', e);
       this.isSpeaking = false;
       this.updateState('idle');
-    };
-
-    utterance.onerror = (e) => {
-      console.warn('Erreur synthèse vocale:', e);
-      this.isSpeaking = false;
-      this.updateState('idle');
-    };
-
-    this.speechSynthesis.speak(utterance);
+    }
   }
 
   stopSpeaking() {
-    if (this.speechSynthesis && this.speechSynthesis.speaking) {
-      this.speechSynthesis.cancel();
+    if (this.speechSynthesis) {
+      try {
+        this.speechSynthesis.cancel();
+      } catch(e){}
       this.isSpeaking = false;
     }
   }
 
   updateState(state) {
-    const { auraOrb, micBtn, micIcon, micWave, statusText, statusBadge } = this.dom;
+    const { auraOrb, micBtn, micIcon, micWave, statusText } = this.dom;
     const i18n = I18N[this.currentLang];
 
-    // Reset des classes orb
+    if (!auraOrb || !micBtn) return;
+
     auraOrb.classList.remove('listening', 'processing', 'speaking');
     micBtn.classList.remove('recording');
-    micIcon.classList.remove('hidden');
-    micWave.classList.add('hidden');
+    if (micIcon) micIcon.classList.remove('hidden');
+    if (micWave) micWave.classList.add('hidden');
 
     switch (state) {
       case 'listening':
         auraOrb.classList.add('listening');
         micBtn.classList.add('recording');
-        micIcon.classList.add('hidden');
-        micWave.classList.remove('hidden');
-        statusText.textContent = i18n.statusListening;
+        if (micIcon) micIcon.classList.add('hidden');
+        if (micWave) micWave.classList.remove('hidden');
+        if (statusText) statusText.textContent = i18n.statusListening;
         break;
 
       case 'processing':
         auraOrb.classList.add('processing');
-        statusText.textContent = i18n.statusProcessing;
+        if (statusText) statusText.textContent = i18n.statusProcessing;
         break;
 
       case 'speaking':
         auraOrb.classList.add('speaking');
-        statusText.textContent = i18n.statusSpeaking;
+        if (statusText) statusText.textContent = i18n.statusSpeaking;
         break;
 
       case 'idle':
       default:
-        statusText.textContent = i18n.statusIdle;
+        if (statusText) statusText.textContent = i18n.statusIdle;
         break;
     }
   }
@@ -514,16 +614,13 @@ class AuraVoiceApp {
         let barHeight = 4;
 
         if (this.isSpeaking) {
-          // Vagues énergiques dorées en élocution
           const wave = Math.sin((tick * 0.12) + (i * 0.35)) * 0.5 + 0.5;
           const noise = Math.cos((tick * 0.08) - (i * 0.2)) * 0.5 + 0.5;
           barHeight = 6 + (wave * noise * 28);
         } else if (this.isListening) {
-          // Ondulations violettes en écoute
           const wave = Math.sin((tick * 0.18) + (i * 0.4)) * 0.5 + 0.5;
           barHeight = 4 + (wave * 20);
         } else {
-          // Respiration feutrée en veille
           const wave = Math.sin((tick * 0.03) + (i * 0.2)) * 0.5 + 0.5;
           barHeight = 3 + (wave * 5);
         }
@@ -554,7 +651,6 @@ class AuraVoiceApp {
   }
 }
 
-// Initialisation dès chargement
 window.addEventListener('DOMContentLoaded', () => {
   window.auraApp = new AuraVoiceApp();
 });

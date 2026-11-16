@@ -207,12 +207,17 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  // Servir les fichiers statiques de public/
-  let filePath = path.join(PUBLIC_DIR, url.pathname === '/' ? 'index.html' : url.pathname);
+  // Servir les fichiers statiques
+  let targetPath = url.pathname === '/' ? 'index.html' : url.pathname.replace(/^\//, '');
+  let filePath = path.join(__dirname, targetPath);
+
+  if (!fs.existsSync(filePath)) {
+    filePath = path.join(PUBLIC_DIR, targetPath);
+  }
   
   fs.stat(filePath, (err, stats) => {
     if (err || !stats.isFile()) {
-      filePath = path.join(PUBLIC_DIR, 'index.html');
+      filePath = path.join(__dirname, 'index.html');
     }
     const ext = path.extname(filePath).toLowerCase();
     const contentType = MIME_TYPES[ext] || 'application/octet-stream';

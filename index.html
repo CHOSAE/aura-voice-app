@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aura — Concierge Vocale Exclusif | Richie Rich Event</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;800&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Ambiance lumineuse d'arrière-plan -->
+  <div class="ambient-glow glow-gold"></div>
+  <div class="ambient-glow glow-violet"></div>
+
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="brand-block">
+        <span class="brand-badge">20 ANS D'EXPERTISE</span>
+        <h1 class="brand-title">RICHIE RICH EVENT</h1>
+        <p class="brand-subtitle">Haute Événementiel & Nuits d'Exception</p>
+      </div>
+
+      <div class="header-actions">
+        <!-- Sélecteur de Langue -->
+        <div class="lang-switch" role="group" aria-label="Langues">
+          <button class="lang-btn active" data-lang="fr" title="Français">FR</button>
+          <button class="lang-btn" data-lang="en" title="English">EN</button>
+          <button class="lang-btn" data-lang="hi" title="Hindi (हिंदी)">HI</button>
+        </div>
+
+        <!-- Bouton Paramètres -->
+        <button id="settingsBtn" class="icon-btn" title="Paramètres & Clé API">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Zone Centrale : L'Orbe Aura -->
+    <main class="main-stage">
+      <div class="concierge-identity">
+        <div class="status-badge" id="statusBadge">
+          <span class="status-dot"></span>
+          <span id="statusText">Aura est disponible</span>
+        </div>
+        <h2 class="concierge-title">AURA</h2>
+        <p class="concierge-desc" id="conciergeDesc">Votre concierge vocale exclusive pour des expériences inoubliables</p>
+      </div>
+
+      <!-- Aura Visual Orb & Sound Wave -->
+      <div class="orb-container">
+        <div class="orb-halo"></div>
+        <div class="orb-ring ring-1"></div>
+        <div class="orb-ring ring-2"></div>
+        <div class="aura-orb" id="auraOrb">
+          <div class="orb-core"></div>
+          <div class="orb-particles"></div>
+        </div>
+        
+        <!-- Visualiseur de Fréquences Canvas -->
+        <canvas id="audioVisualizer" class="audio-canvas" width="400" height="80"></canvas>
+      </div>
+
+      <!-- Live Voice Subtitle / Dernier échange -->
+      <div class="speech-live-box" id="speechLiveBox">
+        <div class="speech-quote" id="speechLiveText">« Touchez le micro pour converser avec moi, ou choisissez une option ci-dessous. »</div>
+      </div>
+
+      <!-- Actions Rapides VIP (Pills) -->
+      <div class="quick-prompts" id="quickPrompts">
+        <!-- Généré dynamiquement en fonction de la langue -->
+      </div>
+
+      <!-- Panneau de Contrôle Vocal Principal -->
+      <div class="voice-controls">
+        <button id="micBtn" class="mic-button" aria-label="Activer le microphone" title="Activer / Désactiver la voix">
+          <div class="mic-pulse"></div>
+          <div class="mic-inner">
+            <svg id="micIcon" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+              <line x1="12" y1="19" x2="12" y2="23"></line>
+              <line x1="8" y1="23" x2="16" y2="23"></line>
+            </svg>
+            <div id="micListeningWave" class="mic-wave hidden">
+              <span></span><span></span><span></span><span></span>
+            </div>
+          </div>
+        </button>
+
+        <div class="voice-hint" id="voiceHint">Cliquez pour parler à Aura</div>
+      </div>
+
+      <!-- Entrée Clavier Alternative Discrète -->
+      <form id="textForm" class="text-input-form">
+        <input type="text" id="textInput" placeholder="Ou écrivez votre demande ici..." autocomplete="off">
+        <button type="submit" id="sendBtn" class="send-btn" aria-label="Envoyer">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="22" y1="2" x2="11" y2="13"></line>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+          </svg>
+        </button>
+      </form>
+    </main>
+
+    <!-- Historique des Échanges & Transcriptions -->
+    <section class="transcript-section">
+      <div class="transcript-header">
+        <span class="transcript-title">JOURNAL DE BORD CONCIERGERIE</span>
+        <button id="clearChatBtn" class="text-link-btn">Effacer</button>
+      </div>
+      <div class="transcript-list" id="transcriptList">
+        <!-- Messages injectés ici -->
+      </div>
+    </section>
+
+    <!-- Footer Prestige -->
+    <footer class="app-footer">
+      <div class="footer-links">
+        <a href="https://richierichevent.com" target="_blank" rel="noopener" class="footer-link">
+          <span>richierichevent.com</span>
+          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+        </a>
+        <span class="separator">•</span>
+        <a href="https://wa.me/?text=Bonjour%20Aura,%20je%20souhaite%20r%C3%A9server%20avec%20Richie%20Rich%20Event" target="_blank" rel="noopener" class="footer-link vip-badge-link">
+          <span>Conciergerie WhatsApp VIP</span>
+        </a>
+      </div>
+      <p class="copyright">© Richie Rich Event. Deux décennies d'excellence événementielle et de nuits d'initiés.</p>
+    </footer>
+  </div>
+
+  <!-- Modal Paramètres & Configuration Clé API -->
+  <div id="settingsModal" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">Paramètres de la Concierge Aura</h3>
+        <button id="closeSettingsBtn" class="close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="apiKeyInput">Clé API Google Gemini (Optionnelle)</label>
+          <input type="password" id="apiKeyInput" placeholder="AIzaSy..." autocomplete="off">
+          <small class="form-help">Si aucune clé n'est renseignée, le moteur haute fidélité local d'Aura prend automatiquement le relais.</small>
+        </div>
+
+        <div class="form-group">
+          <label for="voiceSelect">Voix de Synthèse Vocale</label>
+          <select id="voiceSelect" class="form-select">
+            <option value="auto">Détection automatique optimisée</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="speechRate">Cadence vocale : <span id="rateVal">1.05x</span></label>
+          <input type="range" id="speechRate" min="0.8" max="1.3" step="0.05" value="1.05">
+        </div>
+
+        <div class="form-group toggle-group">
+          <label for="autoSpeakToggle">Lecture vocale automatique des réponses</label>
+          <input type="checkbox" id="autoSpeakToggle" checked>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="saveSettingsBtn" class="primary-btn">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
