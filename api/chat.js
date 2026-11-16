@@ -25,8 +25,8 @@ function getIntelligentLocalAuraResponse(message, lang, history = []) {
   let currentLang = lang || 'fr';
   if (/[\u0900-\u097F]/.test(clean) || clean.includes('namaste') || clean.includes('kaise') || clean.includes('kripya')) {
     currentLang = 'hi';
-  } else if (clean.includes('how much') || clean.includes('price') || clean.includes('cost') || (clean.includes('dress') && clean.includes('code')) || clean.includes('book a table') || (clean.includes('who') && clean.includes('you'))) {
-    if (!clean.includes('bonjour') && !clean.includes('prix') && !clean.includes('combien')) {
+  } else if (!clean.includes('bonjour') && !clean.includes('prix') && !clean.includes('combien') && !clean.includes('quel') && !clean.includes('est') && !clean.includes('pour') && !clean.includes('tenue') && !clean.includes('soirée')) {
+    if (clean.includes('how much') || clean.includes('price') || clean.includes('cost') || (clean.includes('dress') && clean.includes('code')) || clean.includes('book a table') || (clean.includes('who') && clean.includes('you'))) {
       currentLang = 'en';
     }
   }
