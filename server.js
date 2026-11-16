@@ -248,7 +248,7 @@ const server = http.createServer(async (req, res) => {
       } catch (err) {
         console.error('Erreur /api/tts:', err);
         res.writeHead(500, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ error: 'Erreur synthèse vocale' }));
+        res.end(JSON.stringify({ error: 'Erreur synthèse vocale', details: err.message }));
       }
     });
     return;

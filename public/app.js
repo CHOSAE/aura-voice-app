@@ -541,40 +541,9 @@ class AuraVoiceApp {
 
     // 1. ElevenLabs (Voix humaine ultra-réaliste activée par défaut)
     if (this.ttsProvider === 'elevenlabs') {
-      const voiceId = this.elevenLabsVoiceId || '21m00Tcm4TlvDq8ikWAM';
+      const voiceId = this.elevenLabsVoiceId || 'EXAVITQu4vr4xnSDxMaL';
       
-      // Tentative via l'endpoint dédié /api/tts
-      try {
-        const response = await fetch('/api/tts', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            text: spokenText,
-            voiceId: voiceId,
-            apiKey: this.elevenLabsKey || undefined
-          })
-        });
-
-        if (response.ok) {
-          const blob = await response.blob();
-          const audioUrl = URL.createObjectURL(blob);
-          this.playAudioUrl(audioUrl);
-          return;
-        } else if (response.status === 401 && !this.elevenLabsKey) {
-          // Si aucune clé ElevenLabs n'est encore configurée, inviter l'utilisateur
-          if (this.dom.settingsModal) {
-            this.dom.settingsModal.classList.remove('hidden');
-            if (this.dom.elevenLabsApiKey) {
-              this.dom.elevenLabsApiKey.focus();
-              this.dom.elevenLabsApiKey.placeholder = "Entrez votre clé API ElevenLabs pour la voix studio...";
-            }
-          }
-        }
-      } catch (err) {
-        console.warn('Erreur /api/tts ElevenLabs:', err);
-      }
-
-      // Tentative directe ElevenLabs si la clé est présente côté client
+      // 1. Appel direct ultra-rapide si la clé est présente
       if (this.elevenLabsKey) {
         try {
           const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
@@ -600,10 +569,34 @@ class AuraVoiceApp {
             const audioUrl = URL.createObjectURL(blob);
             this.playAudioUrl(audioUrl);
             return;
+          } else {
+            console.warn('Erreur ElevenLabs direct:', await res.text());
           }
         } catch (e) {
           console.warn('Échec direct ElevenLabs:', e);
         }
+      }
+
+      // 2. Tentative via l'endpoint /api/tts si disponible
+      try {
+        const response = await fetch('/api/tts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            text: spokenText,
+            voiceId: voiceId,
+            apiKey: this.elevenLabsKey || undefined
+          })
+        });
+
+        if (response.ok) {
+          const blob = await response.blob();
+          const audioUrl = URL.createObjectURL(blob);
+          this.playAudioUrl(audioUrl);
+          return;
+        }
+      } catch (err) {
+        console.warn('Erreur /api/tts ElevenLabs:', err);
       }
     }
 
