@@ -1,4 +1,4 @@
-// Serverless Function Vercel pour /api/chat avec LLM Multi-Moteurs (Gemini / OpenAI) et Moteur de Connaissances Riche
+// Serverless Function Vercel pour /api/chat avec LLM Multi-Moteurs (Gemini / OpenAI) et Moteur Sémantique Riche
 const AURA_SYSTEM_PROMPT = `Tu es Aura, le concierge virtuel et l'assistant exclusif de Richie Rich Event (richierichevent.com).
 
 TON IDENTITÉ & POSTURE :
@@ -19,14 +19,13 @@ CONNAISSANCES EXPERTES DE RICHIE RICH EVENT :
 - Tarifs & Réservations : Chaque expérience étant exclusive et sur mesure, les tarifs dépendent du club, de l'artiste de la soirée et de la configuration souhaitée. Inviter le client à indiquer la date et le nombre de convives pour une proposition sur mesure.
 - Dress Code & Esprit : Tenue élégante, chic et raffinée exigée en club. Accès garanti sous réserve du respect de l'esprit du lieu.`;
 
-// Moteur de connaissances sémantique étendu (Couvre des dizaines de questions précises sans clé API)
 function getIntelligentLocalAuraResponse(message, lang, history = []) {
   const clean = (message || '').toLowerCase();
   
   let currentLang = lang || 'fr';
   if (/[\u0900-\u097F]/.test(clean) || clean.includes('namaste') || clean.includes('kaise') || clean.includes('kripya')) {
     currentLang = 'hi';
-  } else if (clean.includes('how much') || clean.includes('price') || clean.includes('cost') || clean.includes('dress code') || clean.includes('book a table') || (clean.includes('who') && clean.includes('you'))) {
+  } else if (clean.includes('how much') || clean.includes('price') || clean.includes('cost') || (clean.includes('dress') && clean.includes('code')) || clean.includes('book a table') || (clean.includes('who') && clean.includes('you'))) {
     if (!clean.includes('bonjour') && !clean.includes('prix') && !clean.includes('combien')) {
       currentLang = 'en';
     }
@@ -37,7 +36,7 @@ function getIntelligentLocalAuraResponse(message, lang, history = []) {
     if (clean.includes('price') || clean.includes('cost') || clean.includes('रुपये') || clean.includes('कीमत') || clean.includes('खर्च')) {
       return "VIP टेबल्स और प्राइवेट इवेंट्स की कीमतें क्लब, तारीख और आपकी पसंद के अनुसार तय होती हैं। अपनी पसंदीदा तारीख और मेहमानों की संख्या बताएं, हमारी टीम आपके लिए खास पैकेज तैयार करेगी।";
     }
-    if (clean.includes('dress code') || clean.includes('कपड़े') || clean.includes('पहनावा')) {
+    if (clean.includes('dress') || clean.includes('कपड़े') || clean.includes('पहनावा')) {
       return "हमारे पार्टनर क्लब्स में ड्रेस कोड हमेशा एलिगेंट और ग्लैमरस होता है। स्मार्ट और क्लासी लुक के साथ आपको बिना किसी रुकावट के VIP फास्ट-ट्रैक एंट्री मिलती है।";
     }
     if (clean.includes('trust') || clean.includes('point') || clean.includes('पॉइंट') || clean.includes('रिवॉर्ड')) {
@@ -57,7 +56,7 @@ function getIntelligentLocalAuraResponse(message, lang, history = []) {
     if (clean.includes('price') || clean.includes('cost') || clean.includes('how much') || clean.includes('rate') || clean.includes('quote')) {
       return "Every VIP experience is tailored to your taste, whether it is a prime table in Paris, Dubai or Saint-Tropez. Tell me your preferred date and party size, and our concierge will curate the finest proposal for you.";
     }
-    if (clean.includes('dress code') || clean.includes('wear') || clean.includes('outfit')) {
+    if (clean.includes('dress') || clean.includes('wear') || clean.includes('outfit')) {
       return "The dress code across our partner clubs is effortlessly chic and elegant. Glamorous evening wear ensures an impeccable welcome and immediate fast-track entry with our ambassadors.";
     }
     if (clean.includes('trust') || clean.includes('point') || clean.includes('loyalty') || clean.includes('reward')) {
@@ -113,17 +112,27 @@ function getIntelligentLocalAuraResponse(message, lang, history = []) {
   return "Je suis à votre entière disposition. Qu'il s'agisse de réserver une table VIP ce soir, de découvrir vos avantages Trust Points ou d'imaginer une célébration sur mesure, que puis-je orchestrer pour vous ?";
 }
 
+function sendResponse(res, status, data) {
+  if (typeof res.status === 'function' && typeof res.json === 'function') {
+    return res.status(status).json(data);
+  }
+  res.writeHead(status, { 'Content-Type': 'application/json' });
+  res.end(JSON.stringify(data));
+}
+
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
   if (req.method === 'OPTIONS') {
-    return res.status(204).end();
+    if (typeof res.status === 'function') return res.status(204).end();
+    res.writeHead(204);
+    return res.end();
   }
 
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Méthode non autorisée' });
+    return sendResponse(res, 405, { error: 'Méthode non autorisée' });
   }
 
   try {
@@ -145,7 +154,7 @@ module.exports = async (req, res) => {
     const { message, history = [], language = 'fr', apiKey, openaiApiKey } = body || {};
 
     if (!message || typeof message !== 'string') {
-      return res.status(400).json({ error: 'Message requis' });
+      return sendResponse(res, 400, { error: 'Message requis' });
     }
 
     // 1. TENTATIVE VIA OPENAI (si clé OpenAI disponible)
@@ -183,7 +192,7 @@ module.exports = async (req, res) => {
           const oData = await openAiRes.json();
           const reply = oData.choices?.[0]?.message?.content?.trim();
           if (reply) {
-            return res.status(200).json({ reply, source: 'openai-gpt4o' });
+            return sendResponse(res, 200, { reply, source: 'openai-gpt4o' });
           }
         }
       } catch (err) {
@@ -236,7 +245,7 @@ module.exports = async (req, res) => {
           const data = await response.json();
           const reply = data.candidates?.[0]?.content?.parts?.[0]?.text;
           if (reply) {
-            return res.status(200).json({ reply: reply.trim(), source: 'gemini' });
+            return sendResponse(res, 200, { reply: reply.trim(), source: 'gemini' });
           }
         }
       } catch (err) {
@@ -246,11 +255,11 @@ module.exports = async (req, res) => {
 
     // 3. MOTEUR SÉMANTIQUE CONTEXTUEL RICHE (Garantit des réponses précises et variées)
     const reply = getIntelligentLocalAuraResponse(message, language, history);
-    return res.status(200).json({ reply, source: 'aura-intelligent-knowledge-engine' });
+    return sendResponse(res, 200, { reply, source: 'aura-intelligent-knowledge-engine' });
 
   } catch (error) {
     console.error('Erreur API Chat:', error);
-    return res.status(200).json({
+    return sendResponse(res, 200, {
       reply: "Je suis à vos côtés pour concevoir une soirée sur mesure. Quel privilège puis-je organiser pour vous ?",
       source: 'graceful-fallback'
     });
