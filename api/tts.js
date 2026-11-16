@@ -28,19 +28,13 @@ module.exports = async (req, res) => {
       });
     }
 
-    const { text, voiceId = '21m00Tcm4TlvDq8ikWAM', apiKey } = body || {};
+    const { text, voiceId = 'EXAVITQu4vr4xnSDxMaL', apiKey } = body || {};
 
     if (!text || typeof text !== 'string') {
       return res.status(400).json({ error: 'Texte requis pour la synthèse' });
     }
 
-    const effectiveApiKey = apiKey || process.env.ELEVENLABS_API_KEY || process.env.XI_API_KEY;
-
-    if (!effectiveApiKey) {
-      return res.status(401).json({
-        error: 'Clé API ElevenLabs manquante. Veuillez renseigner votre clé dans les Réglages (⚙️) ou dans les variables Vercel.'
-      });
-    }
+    const effectiveApiKey = apiKey || process.env.ELEVENLABS_API_KEY || process.env.XI_API_KEY || 'sk_8d99786b3465153e4c9fbcbf6328152bf7ced76f6f26942e';
 
     const elevenUrl = `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`;
     const response = await fetch(elevenUrl, {

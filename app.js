@@ -142,8 +142,8 @@ class AuraVoiceApp {
     
     // Moteur vocal par défaut : ElevenLabs (Voix humaine studio)
     this.ttsProvider = localStorage.getItem('aura_tts_provider') || 'elevenlabs';
-    this.elevenLabsKey = localStorage.getItem('aura_elevenlabs_key') || '';
-    this.elevenLabsVoiceId = localStorage.getItem('aura_elevenlabs_voice_id') || '21m00Tcm4TlvDq8ikWAM'; // Rachel
+    this.elevenLabsKey = localStorage.getItem('aura_elevenlabs_key') || 'sk_8d99786b3465153e4c9fbcbf6328152bf7ced76f6f26942e';
+    this.elevenLabsVoiceId = localStorage.getItem('aura_elevenlabs_voice_id') || 'EXAVITQu4vr4xnSDxMaL'; // Sarah - Luxury VIP
     this.openaiKey = localStorage.getItem('aura_openai_key') || '';
     this.openaiVoice = localStorage.getItem('aura_openai_voice') || 'nova';
 
