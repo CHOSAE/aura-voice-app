@@ -24,6 +24,12 @@
       </div>
 
       <div class="header-actions">
+        <!-- Badge Tier Membre Actif -->
+        <div id="memberTierBadge" class="member-tier-pill" title="Modifier votre statut de membre">
+          <span class="tier-dot"></span>
+          <span id="tierLabel">Founding Member</span>
+        </div>
+
         <!-- Sélecteur de Langue -->
         <div class="lang-switch" role="group" aria-label="Langues">
           <button class="lang-btn active" data-lang="fr" title="Français">FR</button>
@@ -143,6 +149,17 @@
         <button id="closeSettingsBtn" class="close-btn">&times;</button>
       </div>
       <div class="modal-body">
+        <div class="form-group">
+          <label for="memberTierSelect">Votre Statut de Membre</label>
+          <select id="memberTierSelect" class="form-select">
+            <option value="Founding Member" selected>💎 Founding Member (Cercle Fondateur — Accès VIP Ultime, 2 Invités & Crédits)</option>
+            <option value="Ambassador Tier">👑 Ambassador Tier (1 Invité, Coupe-File & Avantages Dédiés)</option>
+            <option value="VIP Member">✨ VIP Member (Réservations prioritaires & Accès Partenaires)</option>
+            <option value="Guest">Guest (Accès découverte & Inscription)</option>
+          </select>
+          <small class="form-help">Configurez votre niveau de membre pour tester les privilèges et la génération de Pass QR.</small>
+        </div>
+
         <div class="form-group">
           <label for="aiProviderSelect">Cerveau IA Conversationnel</label>
           <select id="aiProviderSelect" class="form-select">

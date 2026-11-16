@@ -826,7 +826,208 @@ body {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Responsive */
+/* VIP Guest Pass Card & Duty Manager Alerts */
+.vip-pass-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.vip-pass-card {
+  background: linear-gradient(135deg, rgba(28, 24, 18, 0.95) 0%, rgba(12, 12, 16, 0.95) 100%);
+  border: 1px solid var(--gold-primary);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), inset 0 0 15px rgba(212, 175, 55, 0.15);
+  position: relative;
+  overflow: hidden;
+}
+
+.vip-pass-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(to bottom, var(--gold-light), var(--gold-primary));
+}
+
+.vip-qr-box {
+  width: 76px;
+  height: 76px;
+  background: #fff;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  flex-shrink: 0;
+}
+
+.vip-qr-box svg {
+  width: 100%;
+  height: 100%;
+}
+
+.vip-pass-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.vip-pass-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.vip-pass-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #000;
+  background: linear-gradient(135deg, var(--gold-light), var(--gold-primary));
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  letter-spacing: 0.5px;
+}
+
+.vip-pass-club {
+  font-family: 'Cinzel', serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.vip-pass-detail {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  line-height: 1.3;
+}
+
+.vip-pass-code {
+  font-family: monospace;
+  font-size: 0.7rem;
+  color: var(--gold-light);
+  letter-spacing: 1px;
+}
+
+/* Duty Manager Escalation Card */
+.duty-manager-alert {
+  background: linear-gradient(135deg, rgba(40, 10, 10, 0.95) 0%, rgba(20, 8, 12, 0.95) 100%);
+  border: 1px solid #ef4444;
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 0 25px rgba(239, 68, 68, 0.35);
+  animation: pulseAlert 2s infinite alternate;
+}
+
+@keyframes pulseAlert {
+  0% { box-shadow: 0 0 15px rgba(239, 68, 68, 0.3); }
+  100% { box-shadow: 0 0 30px rgba(239, 68, 68, 0.6); }
+}
+
+.duty-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.duty-icon {
+  width: 24px;
+  height: 24px;
+  color: #f87171;
+}
+
+.duty-title {
+  font-family: 'Cinzel', serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #fca5a5;
+  letter-spacing: 1px;
+}
+
+.duty-text {
+  font-size: 0.82rem;
+  color: #fecaca;
+  line-height: 1.4;
+}
+
+.duty-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.duty-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #dc2626;
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 8px 14px;
+  border-radius: var(--radius-full);
+  text-decoration: none;
+  transition: var(--transition);
+  border: none;
+  cursor: pointer;
+}
+
+.duty-btn:hover {
+  background: #ef4444;
+  transform: translateY(-1px);
+}
+
+.duty-btn-secondary {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.duty-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Sélecteur de Tier Membre dans le Header */
+.member-tier-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  background: rgba(212, 175, 55, 0.12);
+  border: 1px solid var(--border-gold);
+  border-radius: var(--radius-full);
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--gold-light);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.member-tier-pill:hover {
+  border-color: var(--gold-primary);
+  background: rgba(212, 175, 55, 0.2);
+}
+
+.tier-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--gold-primary);
+  box-shadow: 0 0 6px var(--gold-primary);
+}
 @media (max-width: 600px) {
   .brand-title { font-size: 1.2rem; }
   .concierge-title { font-size: 1.8rem; }

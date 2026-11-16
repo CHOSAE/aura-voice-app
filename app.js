@@ -59,6 +59,93 @@ const AURA_ENGINE = {
     const clean = (message || '').toLowerCase();
     const currentLang = detectMessageLanguage(message, lang || 'fr');
 
+    // 1. GARDE-FOUS DE SÉCURITÉ (LITIGES, PORTE, SÉCURITÉ)
+    if (clean.includes('dispute') || clean.includes('overcharge') || clean.includes('refund') || clean.includes('charged twice') || clean.includes('billing error') || clean.includes('fraud') ||
+        clean.includes('denied entry') || clean.includes('bounced') || clean.includes('bouncer') || clean.includes('door dispute') || clean.includes('refused at door') || clean.includes('not letting me in') ||
+        clean.includes('safety') || clean.includes('fight') || clean.includes('harass') || clean.includes('emergency') || clean.includes('danger') || clean.includes('police') || clean.includes('injured') ||
+        clean.includes('surfactur') || clean.includes('remboursement') || clean.includes('trop débité') || clean.includes('litige') || clean.includes('refoulé') || clean.includes('videur') || clean.includes('bloqué à la porte') || clean.includes('entrée refusée') || clean.includes('sécurité') || clean.includes('bagarre') || clean.includes('urgence') || clean.includes('volé') || clean.includes('agression')) {
+      
+      const isDoor = clean.includes('door') || clean.includes('bouncer') || clean.includes('bounced') || clean.includes('refoulé') || clean.includes('videur') || clean.includes('porte');
+      const isPayment = clean.includes('charge') || clean.includes('refund') || clean.includes('bill') || clean.includes('paiement') || clean.includes('rembours');
+      const reasonEn = isDoor ? 'Door entry & access dispute' : (isPayment ? 'Payment & billing dispute' : 'Venue safety & security alert');
+      const reasonFr = isDoor ? "Contestation d'accès à l'entrée du club" : (isPayment ? 'Contestation de paiement & facturation' : 'Alerte sécurité & assistance immédiate');
+
+      if (currentLang === 'en') {
+        return {
+          reply: "I take this situation with the utmost priority. In accordance with our VIP safety protocols, I have immediately transferred your file to our Live Human Duty Manager on duty. A senior manager is stepping in right now to assist you directly.",
+          action: 'duty_manager_escalation',
+          escalation: {
+            title: "LIVE HUMAN DUTY MANAGER DISPATCHED",
+            description: `Priority escalation for: ${reasonEn}. Senior duty management notified at partner venue.`,
+            phone: "+33 1 89 00 00 00",
+            whatsapp: "https://wa.me/33600000000?text=URGENT%20VIP%20DUTY%20MANAGER%20ESCALATION"
+          }
+        };
+      } else {
+        return {
+          reply: "Je traite cette situation avec la plus haute priorité. Conformément à nos protocoles de sécurité VIP, je transfère immédiatement votre dossier à notre Duty Manager humain d'astreinte. Un responsable prend le relais en direct sans délai.",
+          action: 'duty_manager_escalation',
+          escalation: {
+            title: "DUTY MANAGER HUMAIN EN DIRECT DÉPÊCHÉ",
+            description: `Escalade prioritaire : ${reasonFr}. La direction d'astreinte du club partenaire est immédiatement prévenue.`,
+            phone: "+33 1 89 00 00 00",
+            whatsapp: "https://wa.me/33600000000?text=URGENT%20VIP%20DUTY%20MANAGER%20ESCALATION"
+          }
+        };
+      }
+    }
+
+    // 2. EXEMPLE : FOUNDING MEMBER + TOY ROOM + 2 GUESTS
+    if ((clean.includes('founding') || clean.includes('fondateur')) && (clean.includes('toy room') || clean.includes('club')) && (clean.includes('guest') || clean.includes('invit') || clean.includes('perk') || clean.includes('avantage'))) {
+      if (currentLang === 'en') {
+        return {
+          reply: "Welcome back! As a verified Founding Member at Toy Room tonight, your tier entitles you to a €500 dedicated table credit, complimentary signature welcome champagne, priority DJ booth allocation, and zero-wait fast-track entry. I have generated your two VIP Guest QR passes below—your guests simply present them at the velvet rope.",
+          action: 'guest_passes',
+          passData: {
+            club: "Toy Room",
+            tier: "Founding Member",
+            guestCount: 2,
+            tableCredit: "€500 Table Credit Active",
+            passes: [
+              { id: "VIP-TR-F01", name: "Guest Pass 1", validUntil: "Tonight - 05:00 AM", status: "FAST-TRACK VERIFIED" },
+              { id: "VIP-TR-F02", name: "Guest Pass 2", validUntil: "Tonight - 05:00 AM", status: "FAST-TRACK VERIFIED" }
+            ]
+          }
+        };
+      } else {
+        return {
+          reply: "Ravi de vous retrouver ! En tant que Founding Member vérifié au Toy Room ce soir, votre statut vous donne droit à 500 € de crédit de table, un magnum de champagne d'accueil, un placement prioritaire au DJ booth et un accès coupe-file immédiat. J'ai généré vos deux Pass QR invités ci-dessous : vos invités n'ont qu'à les présenter au coupe-file pour entrer sans aucune attente.",
+          action: 'guest_passes',
+          passData: {
+            club: "Toy Room",
+            tier: "Founding Member",
+            guestCount: 2,
+            tableCredit: "500 € de Crédit de Table Activé",
+            passes: [
+              { id: "VIP-TR-F01", name: "Pass Invité 1", validUntil: "Ce soir - 05:00", status: "COUPE-FILE VÉRIFIÉ" },
+              { id: "VIP-TR-F02", name: "Pass Invité 2", validUntil: "Ce soir - 05:00", status: "COUPE-FILE VÉRIFIÉ" }
+            ]
+          }
+        };
+      }
+    }
+
+    // 3. DISPONIBILITÉ TABLES
+    if (clean.includes('disponib') || clean.includes('availability') || clean.includes('table available') || clean.includes('reste des tables')) {
+      if (currentLang === 'en') {
+        return "We currently have premium table allocations available at our partner venues: Upper Dancefloor and DJ Booth tables can still be secured for tonight. What club or city are you planning to attend?";
+      }
+      return "Nous disposons actuellement de tables exclusives dans nos clubs partenaires : les carrés DJ Booth et Dancefloor sont encore accessibles pour ce soir. Pour quel club ou quelle ville souhaitez-vous sécuriser votre table ?";
+    }
+
+    // 4. ONBOARDING & INSCRIPTION
+    if (clean.includes('onboard') || clean.includes('rejoindre') || clean.includes('become member') || clean.includes('devenir membre') || clean.includes('inscription')) {
+      if (currentLang === 'en') {
+        return "Membership at Richie Rich Event is selective, opening access to our three tiers: Member, Ambassador, and Founding Member. You accumulate Trust Points through presence and referrals to unlock table credits and private fast-track passes. Would you like me to initiate your membership application?";
+      }
+      return "L'adhésion chez Richie Rich Event repose sur trois cercles sélectifs : Membre VIP, Ambassadeur et Founding Member. Vos Trust Points accumulés débloquent des crédits de table, des pass invités et un accès coupe-file permanent. Souhaitez-vous que j'initie votre candidature dès maintenant ?";
+    }
+
     // ==========================================
     // HINDI RESPONSES (हिंदी)
     // ==========================================
@@ -189,10 +276,10 @@ const I18N = {
     voiceHint: "Touchez le micro pour parler à Aura",
     inputPlaceholder: "Ou écrivez votre demande ici...",
     quickPrompts: [
-      { text: "Comment fonctionnent les Trust Points ?", label: "✨ Trust Points" },
-      { text: "Je souhaite réserver un carré VIP en club", label: "🍾 Carré VIP Club" },
-      { text: "Organiser un événement privé sur mesure", label: "🎉 Événement Privé" },
-      { text: "Comment rejoindre le cercle VIP ?", label: "💎 Devenir Membre" }
+      { text: "Quels sont mes avantages ce soir en tant que Founding Member au Toy Room et comment inviter 2 personnes ?", label: "🎟️ Avantages Toy Room (2 Invités)" },
+      { text: "Peux-tu vérifier la disponibilité des tables VIP ce soir ?", label: "🍾 Disponibilité Tables" },
+      { text: "Quel est le dress code pour entrer en club partenaire ?", label: "👗 Dress Code & Tenue" },
+      { text: "J'ai un problème urgent à l'entrée avec le videur", label: "🛡️ Litige Entrée / Duty Manager" }
     ],
     defaultGreeting: "Bienvenue. Je suis Aura, votre concierge exclusive chez Richie Rich Event. Depuis vingt ans, nous façonnons des nuits et des événements sur mesure d'exception. Quel privilège puis-je organiser pour vous aujourd'hui ?"
   },
@@ -206,10 +293,10 @@ const I18N = {
     voiceHint: "Tap the mic to talk with Aura",
     inputPlaceholder: "Or type your request here...",
     quickPrompts: [
-      { text: "How do Trust Points work?", label: "✨ Trust Points" },
-      { text: "Book an exclusive VIP table at a partner club", label: "🍾 VIP Club Tables" },
-      { text: "Plan a bespoke private celebration", label: "🎉 Bespoke Events" },
-      { text: "How can I join the VIP circle?", label: "💎 Join VIP Circle" }
+      { text: "Hey Aura, what perks do I get tonight as a Founding Member at Toy Room, and how do I bring two guests?", label: "🎟️ Founding Member Perks (Toy Room)" },
+      { text: "Can you check VIP table availability for tonight?", label: "🍾 Check Table Availability" },
+      { text: "What is the dress code for partner clubs?", label: "👗 Dress Code Guidelines" },
+      { text: "I have an urgent issue at the door with entry", label: "🛡️ Door Dispute / Duty Manager" }
     ],
     defaultGreeting: "Welcome. I am Aura, your exclusive virtual concierge at Richie Rich Event. For two decades, we have defined bespoke luxury nightlife and private celebrations. How may I elevate your evening today?"
   },
@@ -254,6 +341,8 @@ class AuraVoiceApp {
     this.elevenLabsVoiceId = localStorage.getItem('aura_elevenlabs_voice_id') || 'EXAVITQu4vr4xnSDxMaL'; // Sarah - Luxury VIP
     this.openaiKey = localStorage.getItem('aura_openai_key') || '';
     this.openaiVoice = localStorage.getItem('aura_openai_voice') || 'nova';
+
+    this.memberTier = localStorage.getItem('aura_member_tier') || 'Founding Member';
 
     this.speechSynthesis = window.speechSynthesis;
     this.currentAudioElement = null;
@@ -312,8 +401,15 @@ class AuraVoiceApp {
       openaiConfig: document.getElementById('openaiConfig'),
       openaiApiKey: document.getElementById('openaiApiKey'),
       openaiVoiceSelect: document.getElementById('openaiVoiceSelect'),
-      browserVoiceGroup: document.getElementById('browserVoiceGroup')
+      browserVoiceGroup: document.getElementById('browserVoiceGroup'),
+      // Tier Membre VIP
+      memberTierBadge: document.getElementById('memberTierBadge'),
+      tierLabel: document.getElementById('tierLabel'),
+      memberTierSelect: document.getElementById('memberTierSelect')
     };
+
+    if (this.dom.memberTierSelect) this.dom.memberTierSelect.value = this.memberTier;
+    if (this.dom.tierLabel) this.dom.tierLabel.textContent = this.memberTier;
 
     if (this.dom.aiProviderSelect) this.dom.aiProviderSelect.value = this.aiProvider;
     if (this.dom.openaiChatKey) this.dom.openaiChatKey.value = this.openaiChatKey;
@@ -467,6 +563,20 @@ class AuraVoiceApp {
       this.dom.settingsModal.classList.remove('hidden');
     });
 
+    if (this.dom.memberTierBadge) {
+      this.dom.memberTierBadge.addEventListener('click', () => {
+        if (this.dom.settingsModal) this.dom.settingsModal.classList.remove('hidden');
+      });
+    }
+
+    if (this.dom.memberTierSelect) {
+      this.dom.memberTierSelect.addEventListener('change', (e) => {
+        this.memberTier = e.target.value;
+        if (this.dom.tierLabel) this.dom.tierLabel.textContent = this.memberTier;
+        localStorage.setItem('aura_member_tier', this.memberTier);
+      });
+    }
+
     this.dom.closeSettingsBtn.addEventListener('click', () => {
       this.dom.settingsModal.classList.add('hidden');
     });
@@ -484,6 +594,11 @@ class AuraVoiceApp {
     });
 
     this.dom.saveSettingsBtn.addEventListener('click', () => {
+      if (this.dom.memberTierSelect) {
+        this.memberTier = this.dom.memberTierSelect.value;
+        if (this.dom.tierLabel) this.dom.tierLabel.textContent = this.memberTier;
+        localStorage.setItem('aura_member_tier', this.memberTier);
+      }
       this.apiKey = this.dom.apiKeyInput.value.trim();
       if (this.dom.openaiChatKey) this.openaiChatKey = this.dom.openaiChatKey.value.trim();
       if (this.dom.aiProviderSelect) this.aiProvider = this.dom.aiProviderSelect.value;
@@ -648,6 +763,8 @@ class AuraVoiceApp {
       }
     }
 
+    let actionData = null;
+
     // 3. Appel serveur Vercel /api/chat
     if (!reply) {
       try {
@@ -658,6 +775,7 @@ class AuraVoiceApp {
             message,
             history: this.conversationHistory,
             language: detectedLang,
+            memberTier: this.memberTier || 'Founding Member',
             apiKey: this.apiKey || undefined,
             openaiApiKey: this.openaiChatKey || undefined
           })
@@ -667,6 +785,7 @@ class AuraVoiceApp {
           const data = await response.json();
           if (data && data.reply) {
             reply = data.reply;
+            actionData = data;
           }
         }
       } catch (err) {
@@ -676,11 +795,17 @@ class AuraVoiceApp {
 
     // 4. Moteur autonome sémantique riche
     if (!reply) {
-      reply = AURA_ENGINE.respond(message, detectedLang, this.conversationHistory);
+      const fallback = AURA_ENGINE.respond(message, detectedLang, this.conversationHistory);
+      if (typeof fallback === 'object' && fallback !== null) {
+        reply = fallback.reply;
+        actionData = fallback;
+      } else {
+        reply = fallback;
+      }
     }
 
     this.isProcessing = false;
-    this.addMessageToTranscript('aura', reply);
+    this.addMessageToTranscript('aura', reply, actionData);
     this.dom.speechLiveText.textContent = `« ${reply} »`;
 
     if (this.autoSpeak) {
@@ -926,7 +1051,7 @@ class AuraVoiceApp {
     }
   }
 
-  addMessageToTranscript(sender, text) {
+  addMessageToTranscript(sender, text, actionData = null) {
     this.conversationHistory.push({ sender, text });
 
     const bubble = document.createElement('div');
@@ -945,11 +1070,81 @@ class AuraVoiceApp {
       `;
     }
 
+    // Contenu spécifique (Pass QR ou Alerte Duty Manager)
+    let extraHtml = '';
+    if (actionData && actionData.action === 'guest_passes' && actionData.passData) {
+      const p = actionData.passData;
+      let passesHtml = '';
+      p.passes.forEach(pass => {
+        passesHtml += `
+          <div class="vip-pass-card">
+            <div class="vip-qr-box">
+              <svg viewBox="0 0 100 100" fill="#000">
+                <rect x="0" y="0" width="30" height="30" fill="#000"/>
+                <rect x="5" y="5" width="20" height="20" fill="#fff"/>
+                <rect x="10" y="10" width="10" height="10" fill="#000"/>
+                <rect x="70" y="0" width="30" height="30" fill="#000"/>
+                <rect x="75" y="5" width="20" height="20" fill="#fff"/>
+                <rect x="80" y="10" width="10" height="10" fill="#000"/>
+                <rect x="0" y="70" width="30" height="30" fill="#000"/>
+                <rect x="5" y="75" width="20" height="20" fill="#fff"/>
+                <rect x="10" y="80" width="10" height="10" fill="#000"/>
+                <rect x="40" y="10" width="10" height="20" fill="#000"/>
+                <rect x="60" y="40" width="20" height="10" fill="#000"/>
+                <rect x="40" y="60" width="10" height="30" fill="#000"/>
+                <rect x="70" y="70" width="20" height="20" fill="#000"/>
+                <rect x="50" y="50" width="10" height="10" fill="#000"/>
+              </svg>
+            </div>
+            <div class="vip-pass-info">
+              <div class="vip-pass-header">
+                <span class="vip-pass-club">${p.club}</span>
+                <span class="vip-pass-badge">${pass.status}</span>
+              </div>
+              <div class="vip-pass-detail">${pass.name} • <strong>${p.tier}</strong></div>
+              <div class="vip-pass-detail" style="color:var(--gold-light);">✨ ${p.tableCredit}</div>
+              <div class="vip-pass-code">ID: ${pass.id} • ${pass.validUntil}</div>
+            </div>
+          </div>
+        `;
+      });
+      extraHtml = `<div class="vip-pass-container">${passesHtml}</div>`;
+    } else if (actionData && actionData.action === 'duty_manager_escalation' && actionData.escalation) {
+      const esc = actionData.escalation;
+      extraHtml = `
+        <div class="duty-manager-alert">
+          <div class="duty-header">
+            <svg class="duty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+              <line x1="12" y1="9" x2="12" y2="13"></line>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+            <span class="duty-title">${esc.title}</span>
+          </div>
+          <p class="duty-text">${esc.description}</p>
+          <div class="duty-actions">
+            <a href="tel:${esc.phone}" class="duty-btn">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M6.62 10.79a15.05 15.05 0 006.59 6.59l2.2-2.2a1 1 0 011.02-.24c1.12.37 2.33.57 3.57.57a1 1 0 011 1V20a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.5a1 1 0 011 1c0 1.25.2 2.45.57 3.57a1 1 0 01-.25 1.02l-2.2 2.2z"/></svg>
+              Appel Duty Manager d'Astreinte
+            </a>
+            <a href="${esc.whatsapp}" target="_blank" rel="noopener" class="duty-btn duty-btn-secondary">
+              WhatsApp Sécurité Prioritaire
+            </a>
+          </div>
+        </div>
+      `;
+    }
+
     bubble.innerHTML = `
       <span class="bubble-sender">${senderLabel}</span>
       <div class="bubble-body">
-        <span>${text}</span>
-        ${playBtnHtml}
+        <div style="display:flex; flex-direction:column; gap:8px; width:100%;">
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+            <span>${text}</span>
+            ${playBtnHtml}
+          </div>
+          ${extraHtml}
+        </div>
       </div>
     `;
 
