@@ -194,6 +194,66 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  // Route API : POST /api/tts (ElevenLabs Audio)
+  if (url.pathname === '/api/tts' && req.method === 'POST') {
+    let body = '';
+    req.on('data', chunk => { body += chunk; });
+    req.on('end', async () => {
+      try {
+        const payload = JSON.parse(body || '{}');
+        const { text, voiceId = 'EXAVITQu4vr4xnSDxMaL', apiKey } = payload;
+
+        if (!text || typeof text !== 'string') {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: 'Texte requis' }));
+          return;
+        }
+
+        const effectiveApiKey = apiKey || process.env.ELEVENLABS_API_KEY || 'sk_8d99786b3465153e4c9fbcbf6328152bf7ced76f6f26942e';
+        const elevenUrl = `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`;
+
+        const elevenRes = await fetch(elevenUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'xi-api-key': effectiveApiKey,
+            'Accept': 'audio/mpeg'
+          },
+          body: JSON.stringify({
+            text,
+            model_id: 'eleven_multilingual_v2',
+            voice_settings: {
+              stability: 0.50,
+              similarity_boost: 0.80,
+              style: 0.25,
+              use_speaker_boost: true
+            }
+          })
+        });
+
+        if (!elevenRes.ok) {
+          const errText = await elevenRes.text();
+          res.writeHead(elevenRes.status, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: 'Erreur ElevenLabs', details: errText }));
+          return;
+        }
+
+        const audioBuf = await elevenRes.arrayBuffer();
+        res.writeHead(200, {
+          'Content-Type': 'audio/mpeg',
+          'Cache-Control': 'public, max-age=3600'
+        });
+        res.end(Buffer.from(audioBuf));
+
+      } catch (err) {
+        console.error('Erreur /api/tts:', err);
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Erreur synthèse vocale' }));
+      }
+    });
+    return;
+  }
+
   // Route API : GET /api/health
   if (url.pathname === '/api/health' && req.method === 'GET') {
     res.writeHead(200, { 'Content-Type': 'application/json' });
