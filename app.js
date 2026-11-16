@@ -140,8 +140,8 @@ class AuraVoiceApp {
     this.autoSpeak = localStorage.getItem('aura_auto_speak') !== 'false';
     this.selectedVoiceURI = localStorage.getItem('aura_selected_voice') || 'auto';
     
-    // Moteur vocal sélectionné : 'browser', 'elevenlabs', 'openai'
-    this.ttsProvider = localStorage.getItem('aura_tts_provider') || 'browser';
+    // Moteur vocal par défaut : ElevenLabs (Voix humaine studio)
+    this.ttsProvider = localStorage.getItem('aura_tts_provider') || 'elevenlabs';
     this.elevenLabsKey = localStorage.getItem('aura_elevenlabs_key') || '';
     this.elevenLabsVoiceId = localStorage.getItem('aura_elevenlabs_voice_id') || '21m00Tcm4TlvDq8ikWAM'; // Rachel
     this.openaiKey = localStorage.getItem('aura_openai_key') || '';
@@ -539,36 +539,71 @@ class AuraVoiceApp {
 
     const spokenText = this.formatForNaturalSpeech(text);
 
-    // 1. ElevenLabs (Voix humaine ultra-réaliste)
-    if (this.ttsProvider === 'elevenlabs' && this.elevenLabsKey) {
+    // 1. ElevenLabs (Voix humaine ultra-réaliste activée par défaut)
+    if (this.ttsProvider === 'elevenlabs') {
+      const voiceId = this.elevenLabsVoiceId || '21m00Tcm4TlvDq8ikWAM';
+      
+      // Tentative via l'endpoint dédié /api/tts
       try {
-        const voiceId = this.elevenLabsVoiceId || '21m00Tcm4TlvDq8ikWAM';
-        const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
+        const response = await fetch('/api/tts', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'xi-api-key': this.elevenLabsKey
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             text: spokenText,
-            model_id: "eleven_multilingual_v2",
-            voice_settings: {
-              stability: 0.45,
-              similarity_boost: 0.85,
-              style: 0.2,
-              use_speaker_boost: true
-            }
+            voiceId: voiceId,
+            apiKey: this.elevenLabsKey || undefined
           })
         });
 
-        if (res.ok) {
-          const blob = await res.blob();
+        if (response.ok) {
+          const blob = await response.blob();
           const audioUrl = URL.createObjectURL(blob);
           this.playAudioUrl(audioUrl);
           return;
+        } else if (response.status === 401 && !this.elevenLabsKey) {
+          // Si aucune clé ElevenLabs n'est encore configurée, inviter l'utilisateur
+          if (this.dom.settingsModal) {
+            this.dom.settingsModal.classList.remove('hidden');
+            if (this.dom.elevenLabsApiKey) {
+              this.dom.elevenLabsApiKey.focus();
+              this.dom.elevenLabsApiKey.placeholder = "Entrez votre clé API ElevenLabs pour la voix studio...";
+            }
+          }
         }
-      } catch (e) {
-        console.warn('Fallback ElevenLabs vers voix native:', e);
+      } catch (err) {
+        console.warn('Erreur /api/tts ElevenLabs:', err);
+      }
+
+      // Tentative directe ElevenLabs si la clé est présente côté client
+      if (this.elevenLabsKey) {
+        try {
+          const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'xi-api-key': this.elevenLabsKey
+            },
+            body: JSON.stringify({
+              text: spokenText,
+              model_id: "eleven_multilingual_v2",
+              voice_settings: {
+                stability: 0.50,
+                similarity_boost: 0.85,
+                style: 0.25,
+                use_speaker_boost: true
+              }
+            })
+          });
+
+          if (res.ok) {
+            const blob = await res.blob();
+            const audioUrl = URL.createObjectURL(blob);
+            this.playAudioUrl(audioUrl);
+            return;
+          }
+        } catch (e) {
+          console.warn('Échec direct ElevenLabs:', e);
+        }
       }
     }
 

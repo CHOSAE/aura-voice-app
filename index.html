@@ -152,18 +152,24 @@
         <div class="form-group">
           <label for="ttsProviderSelect">Moteur Vocal</label>
           <select id="ttsProviderSelect" class="form-select">
-            <option value="browser">Voix Haute Définition du Navigateur (Gratuit & Local)</option>
-            <option value="elevenlabs">ElevenLabs — Voix Humaine Hyper-Réaliste (IA Studio)</option>
+            <option value="elevenlabs" selected>✨ ElevenLabs — Voix Humaine Hyper-Réaliste (Recommandé)</option>
             <option value="openai">OpenAI TTS — Voix Studio Naturelle (Nova / Shimmer)</option>
+            <option value="browser">Voix Haute Définition du Navigateur (Gratuit & Local)</option>
           </select>
         </div>
 
-        <div id="elevenLabsConfig" class="form-group hidden">
+        <div id="elevenLabsConfig" class="form-group">
           <label for="elevenLabsApiKey">Clé API ElevenLabs</label>
-          <input type="password" id="elevenLabsApiKey" placeholder="sk_...">
-          <small class="form-help">Utilise la technologie vocale la plus humaine au monde. (Voix par défaut : Rachel / Luxe).</small>
-          <label for="elevenLabsVoiceId" style="margin-top:6px;">Voice ID ElevenLabs (Optionnel)</label>
-          <input type="text" id="elevenLabsVoiceId" placeholder="21m00Tcm4TlvDq8ikWAM (Rachel) ou ID personnalisé">
+          <input type="password" id="elevenLabsApiKey" placeholder="sk_..." autocomplete="off">
+          <small class="form-help">Obtenez votre clé gratuite sur <a href="https://elevenlabs.io" target="_blank" rel="noopener" style="color:var(--gold-primary);">elevenlabs.io</a>.</small>
+          
+          <label for="elevenLabsVoiceId" style="margin-top:8px;">Timbre Vocal d'Aura</label>
+          <select id="elevenLabsVoiceId" class="form-select">
+            <option value="21m00Tcm4TlvDq8ikWAM" selected>Rachel — Élégante, feutrée & captivante (Luxe VIP)</option>
+            <option value="EXAVITQu4vr4xnSDxMaL">Bella — Douce, chaleureuse & intimiste</option>
+            <option value="FGY2WhTYpPnrIDTdsKH5">Laura — Sophistiquée, assurée & prestige</option>
+            <option value="cgSgspJ2msm6clMCkdW9">Jessica — Dynamique, lumineuse & accueillante</option>
+          </select>
         </div>
 
         <div id="openaiConfig" class="form-group hidden">
